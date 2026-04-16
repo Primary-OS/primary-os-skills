@@ -1,110 +1,107 @@
-# Primary OS — Skills Marketplace
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/primary-logo.svg">
+    <source media="(prefers-color-scheme: light)" srcset=".github/assets/primary-logo-dark.svg">
+    <img alt="Primary" src=".github/assets/primary-logo-dark.svg" width="320">
+  </picture>
+</p>
 
-Official skills marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools built for the Primary team.
+<h3 align="center">Skills Marketplace</h3>
 
-This repo holds the catalog of plugins (`.claude-plugin/marketplace.json`) plus each plugin's source under `plugins/`. All skill content is written in model-agnostic language so it works across Claude Code, Cowork, Codex, and other AI coding agents.
+<p align="center">
+  Internal workflows, automation, and AI-assisted tools for the Primary team.<br>
+  Model-agnostic — works with Claude Code, Cowork, Codex, and other AI agents.
+</p>
+
+---
+
+## Overview
+
+This repo is the skills marketplace for [Primary Venture Partners](https://primary.vc). It contains a catalog of plugins (`.claude-plugin/marketplace.json`) and each plugin's source under `plugins/`.
+
+Add the marketplace once and new plugins become available automatically as they ship.
+
+## Available plugins
+
+| Plugin | Version | Description |
+|--------|---------|-------------|
+| **primary-sourcing** | `0.1.0-alpha` | Team-wide sourcing agent. Scaffold a project per portfolio company or sourcing target, kick off searches, run automated LinkedIn sourcing with Slack feedback loops and weekly digests. Supports recruiting, GTM, investment, fund/LP, advisor, and custom use cases. |
 
 ## Installation
 
-### Claude Cowork (web & desktop)
+### Cowork
 
-1. Open a Cowork session.
-2. Click **Customize** in the left sidebar.
-3. Click the **+** next to "Personal plugins".
-4. Select **Create plugin** → **Add marketplace**.
-5. Paste `Primary-OS/primary-os-skills` and confirm.
-6. The `primary-os` marketplace and its plugins are now available under **Browse plugins**.
-7. Click **Install** on any plugin you want (e.g. `primary-sourcing`).
+1. Open a Cowork session and click **Customize** in the left sidebar.
+2. Click **+** next to "Personal plugins", then **Create plugin** > **Add marketplace**.
+3. Paste `Primary-OS/primary-os-skills` and confirm.
+4. Go to **Browse plugins** and click **Install** on any plugin.
 
-To verify: click **Skills** in the sidebar — you should see the installed plugin's skills listed.
-
-### Claude Code (CLI)
-
-Add the marketplace (one-time):
+### Claude Code CLI
 
 ```bash
+# Add the marketplace (one-time)
 claude plugin marketplace add Primary-OS/primary-os-skills
-```
 
-Or use the slash command inside an interactive session:
-
-```
-/plugin marketplace add Primary-OS/primary-os-skills
-```
-
-Then install a plugin:
-
-```bash
-# CLI
+# Install a plugin
 claude plugin install primary-sourcing@primary-os
-
-# Or inside a session
-/plugin install primary-sourcing@primary-os
 ```
 
-To browse all available plugins interactively:
-
-```
-/plugin
-```
-
-Updates pull automatically on startup. To force-refresh:
-
-```
-/plugin marketplace update primary-os
-```
-
-### Claude Code (VS Code / JetBrains extensions)
-
-The extensions use the same plugin system as the CLI. Open the Claude Code panel and run:
+Or inside an interactive session:
 
 ```
 /plugin marketplace add Primary-OS/primary-os-skills
 /plugin install primary-sourcing@primary-os
 ```
 
-### OpenAI Codex / other agents
+Browse all available plugins interactively with `/plugin`. Updates pull automatically on startup — force-refresh with `/plugin marketplace update primary-os`.
 
-The `.claude-plugin/` marketplace format is specific to Claude Code and Cowork. However, all skill content in this repo is model-agnostic — the `SKILL.md` files, reference docs, templates, and scoring rubrics work with any LLM-based agent.
+### VS Code and JetBrains
 
-To use with Codex or other agents:
+Open the Claude Code panel and run the same slash commands as the CLI:
 
-1. Clone this repo:
-   ```bash
-   git clone https://github.com/Primary-OS/primary-os-skills.git
-   ```
-2. Point your agent at the relevant skill files. Each skill lives under `plugins/<plugin>/skills/<skill-name>/` and contains:
-   - `SKILL.md` — the full procedure (steps, prompts, decision logic)
-   - `references/` — supporting docs (scoring rubrics, algorithms, schemas)
-3. Load the skill content into your agent's context or system prompt. The skills reference MCP connectors (Airtable, Slack, etc.) — map these to whatever tool-use mechanism your agent supports.
+```
+/plugin marketplace add Primary-OS/primary-os-skills
+/plugin install primary-sourcing@primary-os
+```
 
-Key files for Codex users:
+### Codex and other agents
 
-| Path | What it is |
-|------|------------|
-| `plugins/primary-sourcing/skills/*/SKILL.md` | Step-by-step procedures |
-| `plugins/primary-sourcing/skills/*/references/` | Scoring rubrics, dedup algorithm, schemas |
-| `plugins/primary-sourcing/templates/` | Project and search templates |
-| `plugins/primary-sourcing/CONNECTORS.md` | Required and optional integrations |
+The `.claude-plugin/` format is specific to Claude Code and Cowork. However, all skill content in this repo is model-agnostic — the procedures, scoring rubrics, and reference docs work with any LLM-based agent.
 
-## Plugins currently available
+1. Clone this repo.
+2. Point your agent at the relevant skill files under `plugins/<plugin>/skills/<skill-name>/`.
+3. Each skill contains a `SKILL.md` (the full procedure) and a `references/` directory with supporting docs.
+4. The skills reference MCP connectors (Airtable, Slack, etc.) — map these to whatever tool-use mechanism your agent supports.
 
-| Plugin | Version | What it does |
-|--------|---------|-------------|
-| `primary-sourcing` | 0.1.0-alpha | Team-wide sourcing agent. Scaffold a portfolio company Project, kick off role searches, run automated LinkedIn sourcing with Slack feedback loops and weekly digests. Supports six use cases: recruiting, GTM, investment, fund/LP, advisor, and custom. |
+**Key paths for direct integration:**
 
-New plugins will be added here as they ship.
+```
+plugins/primary-sourcing/
+  skills/
+    start-sourcing-project/SKILL.md    # Scaffold a new project
+    kickoff-role/SKILL.md              # Kick off a search
+    run-sourcing-batch/SKILL.md        # Run a sourcing batch
+    run-weekly-summary/SKILL.md        # Post a weekly digest
+  templates/                           # Project and search templates
+  CONNECTORS.md                        # Required and optional integrations
+```
 
-## Managed distribution (IT)
+## Managed distribution
 
-For a fully hands-off rollout, IT can add the marketplace and enabled plugins to Primary's Claude managed settings so every teammate's Cowork picks them up automatically — no manual install needed. See `docs/managed-settings.md` for the recommended configuration.
+For hands-off team rollout, IT can push the marketplace and enabled plugins through Claude managed settings — no manual install needed per teammate. See [`docs/managed-settings.md`](docs/managed-settings.md).
 
-## Contributing a new plugin
+## Contributing
 
-1. Add your plugin folder under `plugins/<plugin-name>/` with a valid `.claude-plugin/plugin.json` manifest.
-2. Register it in the top-level `.claude-plugin/marketplace.json` under `plugins`.
-3. Open a pull request. Keep the plugin self-contained — no references to files outside its directory.
+1. Add your plugin under `plugins/<plugin-name>/` with a `.claude-plugin/plugin.json` manifest.
+2. Register it in `.claude-plugin/marketplace.json`.
+3. Open a pull request. Keep plugins self-contained.
 
 ## Support
 
-Open an issue in this repo, or ping `#ai-tools` in Slack.
+Open an issue in this repo or reach out in `#ai-tools` on Slack.
+
+---
+
+<p align="center">
+  <a href="https://primary.vc">primary.vc</a>
+</p>
