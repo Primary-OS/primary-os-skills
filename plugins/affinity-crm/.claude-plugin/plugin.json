@@ -1,6 +1,6 @@
 {
   "name": "affinity-crm",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Single affinity-expert skill for Primary's Affinity MCP: load before any Affinity tool (pipeline, search, notes, lists). Wraps the custom MCP (8 pipeline tools + ~24 proxied tools) with workflow chains, disambiguation, and error recovery that tool descriptions alone do not provide.",
   "author": {
     "name": "Primary Venture Partners",
