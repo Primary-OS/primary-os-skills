@@ -109,6 +109,21 @@ Be **specific**. Generic SEARCH.md content is the #1 failure mode. Always cite t
 
 Base slug = `{subject_slug}-{search_slug}`. See `references/collision-handling.md` for the algorithm. For recruiting this might look like `lighttable-founding-ae`; for investment sourcing `vertical-saas-ops-repeat-founder`; for LP sourcing `fund-v-family-offices`.
 
+### Step 7.5 — Check for duplicate searches
+
+Before creating any resources, query the user's Airtable Searches table for an existing record matching `(owner_email, search_slug)`. If a match is found, prompt the user with AskUserQuestion:
+
+> You already have a search called **{search_title}** in this project — here's the existing one:
+> - Slug: `{existing_slug}`
+> - Status: {status}
+> - Slack channel: #{channel_name}
+> - Created: {created_at}
+>
+> - **Use the existing search** (opens the role folder)
+> - **Create a new one anyway** (will be suffixed to avoid collision)
+
+If the user picks the existing search, abort kickoff and point them to the role folder. If they want a new one, proceed — collision handling in step 7 will suffix the slug.
+
 ### Step 8 — Create the Airtable Search record
 
 Use the Airtable MCP to create a record in the user's Searches table (note: table is named "Searches" for generality, but maps 1:1 to what the legacy system called "Roles"). Fields per `references/scheduled-task-prompts.md`.
@@ -162,7 +177,7 @@ Cowork-side summary:
 
 ## Guardrails
 
-- Never create duplicate Searches — check by `(owner_email, search_slug)` first.
+- Duplicate search check happens in step 7.5 — always run it before creating resources.
 - If any MCP call fails mid-flow, stop and report what succeeded vs. what didn't. Prefer partial completion with clear state over silent rollback.
 - Do not kick off inside a workspace that isn't a scaffolded Project.
 - Respect the per-user dedup model. This skill only **creates** the search — dedup happens in `run-sourcing-batch`.
