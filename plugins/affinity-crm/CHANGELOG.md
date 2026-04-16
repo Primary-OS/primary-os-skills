@@ -4,7 +4,7 @@
 
 ### Changed
 - **BREAKING:** Replaced four skills (`manage-deal-pipeline`, `research-entities`, `manage-notes-and-activities`, `manage-lists-and-fields`) with one consolidated skill **`affinity-expert`** for clearer triggering and lower skill-budget use. Reference markdown files are unchanged in content and now live under `skills/affinity-expert/references/`.
-- Added [`MCP-WORKER-PATCHES.md`](./MCP-WORKER-PATCHES.md) — spec for the Cloudflare Worker (server instructions, tool-description hints, optional `get_affinity_help`).
+- MCP Worker patch spec moved to the `affinity-mcp-remote` repo where it will be implemented.
 
 ## 0.1.0 — 2026-04-16
 

@@ -10,10 +10,6 @@ The plugin itself does not bundle or ship an MCP server. The Affinity MCP is dep
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Affinity MCP**       | All Affinity operations: pipeline management, company/person search, notes, lists, fields, meetings, relationship intelligence. Single connection covers everything. |
 
-### MCP server maintainers
-
-The Worker should expose **server instructions** and **tool-description hints** that match the plugin’s `affinity-expert` skill so agents get correct prerequisite chains even when the skill does not auto-load. Copy-paste spec: [`MCP-WORKER-PATCHES.md`](./MCP-WORKER-PATCHES.md).
-
 ### How the MCP works
 
 Primary's Affinity MCP is a Cloudflare Worker that:
