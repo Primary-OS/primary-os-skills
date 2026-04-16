@@ -6,9 +6,9 @@ This reference defines the exact prompt text used when creating Cowork scheduled
 
 All sourcing state (projects, deliveries, feedback) lives in Supabase via the Lovelace platform. Claude reads state via these tools and never writes tracking data directly — the Slack bot handles delivery recording and feedback writes server-side.
 
-### `create_sourcing_project`
+### `create_sourcing_search`
 
-Creates a new sourcing project.
+Creates a new sourcing search.
 
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
@@ -16,19 +16,17 @@ Creates a new sourcing project.
 | role_title | string | yes | |
 | slug | string | yes | URL-safe unique slug. Returns 409 on conflict. |
 | use_case | string | no | recruiting (default), gtm, investment, fund_lp, advisor, other |
-| slack_channel_id | string | no | Set after channel creation via `update_sourcing_project` |
-| slack_channel_name | string | no | |
 | search_criteria | string | no | SEARCH.md content |
 
-Returns the full project row including `id`. **Store this `id` in the role's `config.json` as `sourcing_project_id`**.
+Returns the full search row including `id`. **Store this `id` in the role's `config.json` as `sourcing_search_id`**.
 
 ### `get_sourcing_status`
 
-Reads project state, deliveries, and feedback.
+Reads search state, deliveries, and feedback.
 
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
-| project_id | string | yes | UUID from `create_sourcing_project` |
+| search_id | string | yes | UUID from `create_sourcing_search` |
 | scope | string | no | `"project"` (default) or `"global"` |
 
 **scope=project** returns:
@@ -41,26 +39,68 @@ Reads project state, deliveries, and feedback.
 
 Use `scope=project` for feedback processing and `scope=global` for cross-project dedup.
 
-### `update_sourcing_project`
+### `update_sourcing_search`
 
-Updates a sourcing project's metadata.
+Updates a sourcing search's metadata.
 
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
-| project_id | string | yes | |
-| search_criteria | string | no | Updated SEARCH.md content |
+| search_id | string | yes | |
 | status | string | no | active, paused, closed |
 | last_run_at | string | no | ISO 8601 timestamp |
 | slack_channel_id | string | no | |
 | slack_channel_name | string | no | |
 
-### `record_sourcing_deliveries`
+### `get_sourcing_criteria`
 
-Records a batch of deliveries for a sourcing project. Call this before posting Slack cards so you have `delivery_id`s for the button actions.
+Gets the current search criteria (brain doc) for a search.
 
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
-| project_id | string | yes | Sourcing project UUID |
+| search_id | string | yes | Sourcing search UUID |
+
+Returns the current criteria version content and version number.
+
+### `get_sourcing_criteria_versions`
+
+Lists all criteria versions for a search, with optional content.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| search_id | string | yes | Sourcing search UUID |
+| include_content | boolean | no | Include full content for each version (default false) |
+
+Returns an array of versions with version number, created_at, and optionally content.
+
+### `update_sourcing_criteria`
+
+Creates a new criteria version. Auto-increments the version number and sets it as current.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| search_id | string | yes | Sourcing search UUID |
+| content | string | yes | The updated SEARCH.md / criteria content |
+
+Returns the new version row including version number.
+
+### `set_sourcing_criteria_version`
+
+Reverts to a previous criteria version number.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| search_id | string | yes | Sourcing search UUID |
+| version | integer | yes | The version number to revert to |
+
+Returns the now-current version row.
+
+### `record_sourcing_deliveries`
+
+Records a batch of deliveries for a sourcing search. Call this before posting Slack cards so you have `delivery_id`s for the button actions.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| search_id | string | yes | Sourcing search UUID |
 | deliveries | array | yes | Each: `{ person_id, score?, rationale? }` |
 
 Returns the created delivery rows including `id` (the `delivery_id` to embed in Slack button actions).

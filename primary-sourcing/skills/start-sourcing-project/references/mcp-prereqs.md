@@ -8,7 +8,7 @@ The plugin depends on a set of MCP connectors. Not every connector is required u
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Slack            | Create per-role private channels, invite the role owner, post intro messages, post profile cards with Yes/Maybe/Pass buttons, read feedback messages, post weekly digests.         |
 | scheduled-tasks  | Create recurring Cowork scheduled tasks for per-role sourcing runs and weekly summaries.                                                                                         |
-| Lovelace MCP     | LinkedIn search via shared Primary Apify account. Sourcing project CRUD (`create_sourcing_project`, `get_sourcing_status`, `update_sourcing_project`). All sourcing state lives here. |
+| Lovelace MCP     | LinkedIn search via shared Primary Apify account. Sourcing search CRUD (`create_sourcing_search`, `get_sourcing_status`, `update_sourcing_search`). All sourcing state lives here. |
 
 ## Recommended for kickoff context gathering
 

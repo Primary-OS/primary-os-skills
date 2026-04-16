@@ -22,9 +22,9 @@ If any are missing, abort with a clear message telling the user what to connect.
 
 ### Step 1 — Load search state
 
-- Read `./roles/{search_slug}/config.json` → captures `slack_channel_id`, `subject_name`, `search_title`, `use_case`, `sourcing_project_id`, etc.
+- Read `./roles/{search_slug}/config.json` → captures `slack_channel_id`, `subject_name`, `search_title`, `use_case`, `sourcing_search_id`, etc.
 - Read `./roles/{search_slug}/SEARCH.md` → the search brain.
-- Call `get_sourcing_status(project_id: sourcing_project_id)` to confirm the search is active. If `project.status` is `paused` or `closed`, abort.
+- Call `get_sourcing_status(search_id: sourcing_search_id)` to confirm the search is active. If `project.status` is `paused` or `closed`, abort.
 - **Capture the `use_case` field** — this determines which scoring rubric to use in step 4, which Slack phrasing to use in step 7, and which context sources to re-check in step 2.
 
 ### Step 2 — Process feedback since last run
@@ -32,9 +32,10 @@ If any are missing, abort with a clear message telling the user what to connect.
 Before sourcing new candidates, ingest feedback that accumulated since `last_run_at`:
 
 1. Read `deliveries` from the `get_sourcing_status` response (step 1) — each entry has `decision` (yes/maybe/no/null) and `feedback_notes`.
-2. Fetch recent Slack channel messages since `last_run_at` via the Slack MCP.
-3. Fetch Granola meetings mentioning the subject or search anchor in the same window. For recruiting the "subject" is the PortCo; for investment sourcing it's the thesis; etc.
-4. If there are any signals, call the SEARCH.md live-update logic — decide whether the signals warrant criteria changes. If yes, rewrite `SEARCH.md` and append a Change Log entry dated today with the signal sources cited.
+2. Call `get_sourcing_criteria(search_id)` to read the current criteria version from Lovelace.
+3. Fetch recent Slack channel messages since `last_run_at` via the Slack MCP.
+4. Fetch Granola meetings mentioning the subject or search anchor in the same window. For recruiting the "subject" is the PortCo; for investment sourcing it's the thesis; etc.
+5. If there are any signals, decide whether the signals warrant criteria changes. If yes, rewrite `SEARCH.md`, append a Change Log entry dated today with the signal sources cited, and call `update_sourcing_criteria(search_id, content)` to persist the new version to Lovelace. This auto-increments the version number.
 
 ### Step 3 — Query Apify via Lovelace MCP
 
@@ -54,8 +55,8 @@ Be harsh regardless of use case — most profiles from a broad LinkedIn search s
 
 This is the heart of the team-version logic. See `references/dedup-algorithm.md` for the full algorithm. Summary:
 
-- Call `get_sourcing_status(project_id, scope: "project")` for same-search deliveries.
-- Call `get_sourcing_status(project_id, scope: "global")` for all LinkedIn URLs across the user's projects.
+- Call `get_sourcing_status(search_id, scope: "project")` for same-search deliveries.
+- Call `get_sourcing_status(search_id, scope: "global")` for all LinkedIn URLs across the user's projects.
 - **Hard exclude**: candidates already delivered on this project. Never repeat.
 - **At most one cross-project repeat per batch**: if the user has seen a candidate on a different project (and the candidate isn't burned), they can appear once more.
 - **Prefer brand-new candidates**: fill the batch with people this user has never seen; only tap the eligible-repeat pool for one slot if needed.
@@ -66,9 +67,9 @@ This is the heart of the team-version logic. See `references/dedup-algorithm.md`
 1. Call `record_sourcing_deliveries` via the Lovelace MCP with the final batch (person_id, score, rationale per candidate). This creates `sourcing_deliveries` rows in Supabase and returns the rows including `delivery_id`s.
 2. Post a batch header to the role's Slack channel, then one profile card per candidate with Yes/Maybe/Pass/Details buttons already attached. Format per `references/slack-formatting.md`. Each button's `value` encodes the `delivery_id`.
 
-### Step 7 — Update project state
+### Step 7 — Update search state
 
-- Call `update_sourcing_project(project_id, last_run_at: now)` to set the current ISO timestamp.
+- Call `update_sourcing_search(search_id, last_run_at: now)` to set the current ISO timestamp.
 - If the batch was empty (nothing brand-new and no eligible repeats), post a short Slack note explaining why and suggesting broader criteria.
 
 ## Failure modes

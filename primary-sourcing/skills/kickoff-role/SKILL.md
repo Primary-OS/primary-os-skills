@@ -1,11 +1,11 @@
 ---
 name: kickoff-role
-description: Kicks off a new search inside an already-scaffolded Primary sourcing Cowork Project, regardless of use case (recruiting, GTM, investment sourcing, LP/fund sourcing, advisor sourcing, etc.). Use when the user says things like "kick off a role", "kick off a new search", "start a search for {title}", "new search for {role}", "start sourcing for {prospect / deal / founder / advisor}", "kick off an investment search", "kick off an LP search", or any phrasing that implies beginning one specific search inside the current Project. Reads the Project's use case from the scaffold marker and adapts every follow-up question, SEARCH.md section, and downstream scheduled task to that use case. Creates the Slack channel, Lovelace sourcing project, role folder, and two recurring scheduled tasks (sourcing batch + weekly digest).
+description: Kicks off a new search inside an already-scaffolded Primary sourcing Cowork Project, regardless of use case (recruiting, GTM, investment sourcing, LP/fund sourcing, advisor sourcing, etc.). Use when the user says things like "kick off a role", "kick off a new search", "start a search for {title}", "new search for {role}", "start sourcing for {prospect / deal / founder / advisor}", "kick off an investment search", "kick off an LP search", or any phrasing that implies beginning one specific search inside the current Project. Reads the Project's use case from the scaffold marker and adapts every follow-up question, SEARCH.md section, and downstream scheduled task to that use case. Creates the Lovelace sourcing search (which auto-creates the Slack channel), role folder, and two recurring scheduled tasks (sourcing batch + weekly digest).
 ---
 
 # Kick off a new search
 
-Run the full kickoff flow for a single search inside a Primary sourcing Cowork Project. At the end of this skill, the search has a Slack channel, a Lovelace sourcing project, a role folder under `roles/{search_slug}/`, and two Cowork scheduled tasks (sourcing + weekly digest).
+Run the full kickoff flow for a single search inside a Primary sourcing Cowork Project. At the end of this skill, the search has a Slack channel, a Lovelace sourcing search, a role folder under `roles/{search_slug}/`, and two Cowork scheduled tasks (sourcing + weekly digest).
 
 The skill adapts to the Project's use case — recruiting, GTM sourcing, investment sourcing, LP/fund sourcing, advisor sourcing, or a custom "other" case. Terminology, follow-up questions, and SEARCH.md generation all branch based on what the Project was scaffolded for.
 
@@ -109,31 +109,31 @@ Base slug = `{subject_slug}-{search_slug}`. See `references/collision-handling.m
 
 ### Step 7.5 — Check for duplicate searches
 
-Before creating any resources, call `create_sourcing_project` with the slug. If the response is a **409 conflict**, the slug is already taken. Prompt the user with AskUserQuestion:
+Before creating any resources, call `create_sourcing_search` with the slug. If the response is a **409 conflict**, the slug is already taken. Prompt the user with AskUserQuestion:
 
 > You already have a search with slug `{search_slug}` in this project.
 >
 > - **Use the existing search** (opens the role folder)
 > - **Create a new one anyway** (will be suffixed to avoid collision)
 
-If the user picks the existing search, abort kickoff and point them to the role folder. If they want a new one, proceed — collision handling in step 7 will suffix the slug and retry `create_sourcing_project`.
+If the user picks the existing search, abort kickoff and point them to the role folder. If they want a new one, proceed — collision handling in step 7 will suffix the slug and retry `create_sourcing_search`.
 
-### Step 8 — Create the Lovelace sourcing project
+### Step 8 — Create the Lovelace sourcing search
 
-Call `create_sourcing_project` via the Lovelace MCP with:
+Call `create_sourcing_search` via the Lovelace MCP with:
 - `company_name`: the subject name
 - `role_title`: the search title
 - `slug`: the final slug from step 7
 - `use_case`: from the scaffold marker
 - `search_criteria`: the SEARCH.md content from step 6
 
-Store the returned `id` as `sourcing_project_id` in config.json.
+Store the returned `id` as `sourcing_search_id` in config.json.
 
-### Step 9 — Create the private Slack channel
+### Step 9 — Wait for Slack channel auto-creation
 
-Channel name: `sourcing-{search_slug}`. Invite the search owner. Handle name-taken collisions per `references/collision-handling.md` (try `-v2`, `-v3`, up to `-v5`).
+The Slack channel is created automatically by Lovelace when `create_sourcing_search` is called (step 8). Channel naming and collision handling are server-side.
 
-After creating the channel, call `update_sourcing_project` with `slack_channel_id` and `slack_channel_name`.
+Poll `get_sourcing_status(search_id)` until `slack_channel_id` appears on the search record (typically within a few seconds). If it hasn't appeared after 30 seconds, surface a warning to the user and continue — the channel may still be provisioning.
 
 ### Step 10 — Write the role folder
 
@@ -143,7 +143,7 @@ Create `./roles/{search_slug}/` with:
 | ----------------- | ---------------------------------------------------------------------------------------------------------- |
 | `SEARCH.md`       | The synthesized brain from step 6.                                                                         |
 | `KICKOFF.md`      | Snapshot of user input + all raw tool findings — durable audit trail.                                      |
-| `config.json`     | Filled from `${CLAUDE_PLUGIN_ROOT}/templates/role/config-template.json` with final search data, use case, and `sourcing_project_id`. |
+| `config.json`     | Filled from `${CLAUDE_PLUGIN_ROOT}/templates/role/config-template.json` with final search data, use case, and `sourcing_search_id`. |
 
 ### Step 11 — Create recurring Cowork scheduled tasks
 
@@ -154,16 +154,9 @@ Two tasks using the scheduled-tasks MCP. Prompt templates in `references/schedul
 
 Store task IDs in `config.json` (task IDs are local state, not needed in Supabase).
 
-### Step 12 — Post the intro message to Slack
+### Step 12 — Verify intro message in Slack
 
-Post a welcome message. Content adapts slightly per use case (phrasing like "I'll source candidates" vs. "I'll surface founders" vs. "I'll surface LPs"). See `references/intro-messages.md` for templates per use case.
-
-Core elements in every intro:
-
-- What the search is about (subject + title).
-- How to interact (buttons, channel messages, `surface my maybes`).
-- Schedule summary.
-- Owner tag.
+The intro message is posted automatically by Lovelace when the channel is created. Verify the message exists in the channel by reading recent messages via the Slack MCP. If the intro message is missing, post one manually using the templates in `references/intro-messages.md`.
 
 ### Step 13 — Summarize to the user
 

@@ -48,7 +48,7 @@ claude --plugin-dir /path/to/this/plugin/folder
 
 - **Cowork Project per subject**: shared across the team. Holds `CLAUDE.md`, `project-context/`, `roles/{search_slug}/`, and `templates/`.
 - **Lovelace platform for sourcing state**: projects, deliveries, and feedback stored in Supabase. Per-user dedup history is naturally user-scoped. The Slack bot writes deliveries and feedback server-side — Claude reads state via `get_sourcing_status` and never writes tracking data directly.
-- **Lovelace MCP for LinkedIn search**: shared Primary Apify account wrapped as an MCP tool, plus sourcing project CRUD (`create_sourcing_project`, `get_sourcing_status`, `update_sourcing_project`).
+- **Lovelace MCP for LinkedIn search**: shared Primary Apify account wrapped as an MCP tool, plus sourcing search CRUD (`create_sourcing_search`, `get_sourcing_status`, `update_sourcing_search`).
 - **Scheduled tasks per search**: one for sourcing cadence, one for the weekly digest. Prompts invoke the skills in this plugin.
 - **Slack bot**: posts profile cards with Yes/Maybe/Pass/Details buttons. Records deliveries and feedback to Supabase. Updates card status after user clicks.
 
