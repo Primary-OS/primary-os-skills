@@ -17,35 +17,40 @@ Rules:
 
 ## When the base slug is free
 
-No existing Airtable Roles record with this slug. Use it directly.
+No existing Airtable Searches record with this slug. Use it directly — no suffix needed.
 
 ## When the base slug is taken
 
 Sources of collision:
 
-1. Same teammate already kicked off a role with this slug (probably re-running a kickoff). Before suffixing, ask the user: "You already have a role with slug `lighttable-founding-ae`. Are you re-running that kickoff, or is this a second role for the same title?"
-   - If re-running: abort and tell them to use the existing role.
-   - If genuinely second role: proceed to suffix.
+1. Same teammate already kicked off a search with this slug (probably re-running a kickoff). Before suffixing, ask the user: "You already have a search with slug `lighttable-founding-ae`. Are you re-running that kickoff, or is this a second search for the same title?"
+   - If re-running: abort and tell them to use the existing search.
+   - If genuinely second search: proceed to suffix.
 2. A different teammate has this slug. Proceed to suffix.
-3. Same slug, role is closed. Still suffix — closed roles stay for audit.
+3. Same slug, search is closed. Still suffix — closed searches stay for audit.
 
 ## Suffix algorithm
 
-After creating the Airtable Role record (step 7 in the main flow), append `-{rec_suffix}` where `rec_suffix` is the last 8 characters of the Airtable record ID, lowercased, and sanitized to `[a-z0-9]`.
+Only apply a suffix when the base slug collides with an existing record.
+
+The suffix is the owner's **email prefix** — the part before `@` in their `owner_email`, lowercased and sanitized to `[a-z0-9-]`. Since all teammates are at the same company domain, no two people share an email prefix.
 
 Example:
 
-- Airtable returns `recAB1cD2eF3gH4iJ5`.
-- `rec_suffix` = `f3gh4ij5`.
-- Final slug: `lighttable-founding-ae-f3gh4ij5`.
+- Base slug: `lighttable-founding-ae` (taken by another teammate).
+- Owner email: `annabelle@primary.vc`.
+- Email prefix: `annabelle`.
+- Final slug: `lighttable-founding-ae-annabelle`.
 
-Write the suffixed slug back to the Airtable Role record's `role_slug` field.
+If the suffixed slug *still* collides (same teammate, genuinely second search with the same title), append `-2`, `-3`, etc.: `lighttable-founding-ae-annabelle-2`.
+
+Write the final slug to the Airtable Search record's `search_slug` field.
 
 ## Slack channel naming
 
-Channel name = `sourcing-{role_slug}`. Slack has a 80-character limit and disallows certain characters.
+Channel name = `sourcing-{search_slug}`. Slack has an 80-character limit and disallows certain characters.
 
-If the resulting channel name exceeds 80 chars, truncate the role part (not the company part) until it fits, keeping the record-ID suffix intact for uniqueness.
+If the resulting channel name exceeds 80 chars, truncate the search title portion (not the company slug or email-prefix suffix) until it fits, keeping the suffix intact for uniqueness.
 
 ## What happens if Slack reports `name_taken`
 
@@ -57,25 +62,24 @@ Slack collision independent of Airtable — another workspace channel has this n
 
 Update `slack_channel_name` on the Airtable record with whatever name actually got created.
 
-## Role folder naming
+## Search folder naming
 
-The workspace folder name matches `role_slug`:
+The workspace folder name matches `search_slug`:
 
 ```
 roles/
-  lighttable-founding-ae-f3gh4ij5/
+  lighttable-founding-ae-annabelle/
     SEARCH.md
     KICKOFF.md
     config.json
 ```
 
-The folder name must match `role_slug` exactly. Downstream skills (`run-sourcing-batch`, `run-weekly-summary`) depend on this.
+The folder name must match `search_slug` exactly. Downstream skills (`run-sourcing-batch`, `run-weekly-summary`) depend on this.
 
-## Why the Airtable record ID as suffix?
+## Why the email prefix as suffix?
 
-Two reasons:
+1. It's guaranteed unique within the org — no two teammates share an email prefix.
+2. It's human-readable — teammates seeing `#sourcing-lighttable-founding-ae-annabelle` instantly know who owns the search.
+3. It's stable — doesn't depend on record creation order or external IDs.
 
-1. It's guaranteed unique — the Airtable API generates it.
-2. It's human-scannable — 8 characters at the end is tolerable; teammates reading `#sourcing-lighttable-founding-ae-f3gh4ij5` can still tell at a glance what search it's for.
-
-Do not use UUIDs, timestamps, or sequential counters — they defeat the scannability goal.
+Do not use UUIDs, timestamps, or Airtable record IDs — they defeat the readability goal.

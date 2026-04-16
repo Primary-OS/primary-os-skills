@@ -113,11 +113,13 @@ Base slug = `{subject_slug}-{search_slug}`. See `references/collision-handling.m
 
 Use the Airtable MCP to create a record in the user's Searches table (note: table is named "Searches" for generality, but maps 1:1 to what the legacy system called "Roles"). Fields per `references/scheduled-task-prompts.md`.
 
-Capture the returned Airtable record ID and suffix the slug if there was a collision.
+The slug written to the record is the final slug from step 7 — either the base slug (if no collision) or the email-prefix-suffixed slug (if collision). See `references/collision-handling.md`.
 
 ### Step 9 — Create the private Slack channel
 
-Channel name: `sourcing-{search_slug}`. Invite the search owner. Handle name-taken collisions with `-v2` etc. Store channel ID on the Airtable Search record.
+Channel name: `sourcing-{search_slug}`. Invite the search owner. Handle name-taken collisions per `references/collision-handling.md` (try `-v2`, `-v3`, up to `-v5`).
+
+After creating the channel, update the Airtable Search record (created in step 8) to store `slack_channel_id` and `slack_channel_name`.
 
 ### Step 10 — Write the role folder
 
