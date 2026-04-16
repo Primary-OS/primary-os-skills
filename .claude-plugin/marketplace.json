@@ -6,8 +6,7 @@
   },
   "metadata": {
     "description": "Official plugin marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools for the Primary team.",
-    "version": "1.1.0",
-    "pluginRoot": "./plugins"
+    "version": "1.2.0"
   },
   "plugins": [
     {
