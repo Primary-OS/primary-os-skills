@@ -23,13 +23,15 @@ Staff ML Engineer  ·  DeepMind  ·  San Francisco Bay Area
 [ Yes (primary) ]  [ Maybe ]  [ Pass ]  [ Details ]
 ```
 
-## Two-stage posting flow
+## Posting flow
 
-Claude posts the card content **without buttons**. The Slack bot detects the posted card, creates a `sourcing_deliveries` row in Supabase, obtains the `delivery_id`, and **updates the message** to inject action buttons with the `delivery_id` embedded. This two-stage flow exists because the `delivery_id` does not exist until the bot creates the delivery row.
+Claude creates delivery rows via the `record_sourcing_deliveries` MCP tool **before** posting cards. This returns `delivery_id`s which are embedded in the button actions. Cards are posted with buttons already attached — no second pass needed.
 
-### Stage 1: Claude posts (no actions block)
+1. Call `record_sourcing_deliveries` with the batch (person_id, score, rationale per candidate). Returns delivery rows with `id` fields.
+2. Post each card to Slack using the Block Kit below, with `delivery_id` wired into the action buttons.
+3. The Slack bot handles button clicks and feedback recording from there.
 
-Use Block Kit:
+### Card Block Kit (with actions)
 
 ```json
 {
@@ -47,6 +49,16 @@ Use Block Kit:
         { "type": "mrkdwn", "text": "> {rationale}" }
       ]
     },
+    {
+      "type": "actions",
+      "block_id": "sourcing_actions_{delivery_id}",
+      "elements": [
+        { "type": "button", "text": { "type": "plain_text", "text": "Yes" }, "style": "primary", "action_id": "sourcing_yes_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Maybe" }, "action_id": "sourcing_maybe_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Pass" }, "action_id": "sourcing_pass_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Details" }, "action_id": "sourcing_details_{delivery_id}", "value": "{delivery_id}" }
+      ]
+    },
     { "type": "divider" }
   ],
   "text": "{name} — {current_title} @ {current_company}"
@@ -54,22 +66,6 @@ Use Block Kit:
 ```
 
 The fallback `text` field is required for notifications and accessibility.
-
-### Stage 2: Bot injects buttons (automatic — not Claude's responsibility)
-
-The bot updates the message to add the actions block:
-
-```json
-{
-  "type": "actions",
-  "elements": [
-    { "type": "button", "text": { "type": "plain_text", "text": "Yes" }, "style": "primary", "action_id": "sourcing_yes_{delivery_id}", "value": "{delivery_id}" },
-    { "type": "button", "text": { "type": "plain_text", "text": "Maybe" }, "action_id": "sourcing_maybe_{delivery_id}", "value": "{delivery_id}" },
-    { "type": "button", "text": { "type": "plain_text", "text": "Pass" }, "action_id": "sourcing_pass_{delivery_id}", "value": "{delivery_id}" },
-    { "type": "button", "text": { "type": "plain_text", "text": "Details" }, "action_id": "sourcing_details_{delivery_id}", "value": "{delivery_id}" }
-  ]
-}
-```
 
 ## Button conventions
 

@@ -54,14 +54,23 @@ Updates a sourcing project's metadata.
 | slack_channel_id | string | no | |
 | slack_channel_name | string | no | |
 
+### `record_sourcing_deliveries`
+
+Records a batch of deliveries for a sourcing project. Call this before posting Slack cards so you have `delivery_id`s for the button actions.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| project_id | string | yes | Sourcing project UUID |
+| deliveries | array | yes | Each: `{ person_id, score?, rationale? }` |
+
+Returns the created delivery rows including `id` (the `delivery_id` to embed in Slack button actions).
+
 ## What the Slack bot handles (not Claude)
 
-The Lovelace Slack bot writes to Supabase via the internal API. Claude does NOT do any of this:
+The Lovelace Slack bot handles user interactions on posted cards:
 
-1. **Recording deliveries** — after Claude posts profile cards, the bot creates `sourcing_deliveries` rows with person_id, score, rationale, slack_message_ts
-2. **Recording feedback** — when a user clicks Yes/Maybe/Pass, the bot writes the decision
-3. **Updating Slack cards** — the bot replaces action buttons with a status line
-4. **Direction messages** — non-command channel text is stored as feedback with `decision="direction"`
+1. **Recording feedback** — when a user clicks Yes/Maybe/Pass, the bot writes the decision to Supabase
+2. **Updating Slack cards** — the bot replaces action buttons with a status line after feedback
 
 ## Scheduled task prompts
 

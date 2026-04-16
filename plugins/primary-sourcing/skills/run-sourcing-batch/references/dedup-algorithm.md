@@ -53,11 +53,9 @@ else:
 4. Never include more than one repeat per batch — even if `brand_new` is small and `eligible_repeat` has many candidates.
 5. If the final batch is empty, post an empty-batch note to Slack (see `run-sourcing-batch` step 7) and exit.
 
-### Phase 4 — Post to Slack
+### Phase 4 — Record deliveries and post to Slack
 
-Claude posts profile cards to the Slack channel. The Slack bot creates `sourcing_deliveries` rows automatically in Supabase after each card is posted. The bot sets `was_repeat` on the delivery record.
-
-Claude does NOT write delivery records, candidate records, or burned flags to Supabase directly. The bot handles all persistence.
+Claude calls `record_sourcing_deliveries` to create `sourcing_deliveries` rows with `was_repeat` set appropriately, then posts profile cards to Slack with buttons already attached (using the returned `delivery_id`s).
 
 ## Edge cases
 

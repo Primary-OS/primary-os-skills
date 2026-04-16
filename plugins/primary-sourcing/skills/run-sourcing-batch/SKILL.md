@@ -1,6 +1,6 @@
 ---
 name: run-sourcing-batch
-description: Runs a single sourcing batch for one role. Invoked programmatically by Cowork scheduled tasks — prompts that say "run the primary-sourcing:run-sourcing-batch skill for role slug X". Also usable manually when the user types "run sourcing for {search_slug}", "source now for {role}", "trigger a sourcing batch for this role", or similar. Processes feedback, updates the search brain, queries Apify via the Lovelace MCP, applies per-user dedup rules (never repeat on same role; at most one cross-role repeat per batch; repeats are burned), and posts profile cards to the role's Slack channel. The Slack bot injects Yes/Maybe/Pass/Details buttons and handles delivery recording and feedback writes to Supabase — Claude does not write tracking data directly.
+description: Runs a single sourcing batch for one role. Invoked programmatically by Cowork scheduled tasks — prompts that say "run the primary-sourcing:run-sourcing-batch skill for role slug X". Also usable manually when the user types "run sourcing for {search_slug}", "source now for {role}", "trigger a sourcing batch for this role", or similar. Processes feedback, updates the search brain, queries Apify via the Lovelace MCP, applies per-user dedup rules (never repeat on same role; at most one cross-role repeat per batch; repeats are burned), records deliveries via `record_sourcing_deliveries`, and posts profile cards with Yes/Maybe/Pass/Details buttons to the role's Slack channel. The Slack bot handles feedback writes when users click buttons.
 ---
 
 # Run a sourcing batch
@@ -61,11 +61,10 @@ This is the heart of the team-version logic. See `references/dedup-algorithm.md`
 - **Prefer brand-new candidates**: fill the batch with people this user has never seen; only tap the eligible-repeat pool for one slot if needed.
 - **Never more than one repeat per batch**: if fewer than N brand-new candidates are available, post fewer cards, don't pad with repeats.
 
-### Step 6 — Post profile cards to Slack
+### Step 6 — Record deliveries and post profile cards to Slack
 
-Post a batch header to the role's Slack channel, then one profile card per candidate. Format per `references/slack-formatting.md`.
-
-Claude posts cards **without action buttons**. The Slack bot detects each posted card, creates a `sourcing_deliveries` row in Supabase, obtains the `delivery_id`, and **updates the Slack message** to inject Yes / Maybe / Pass / Details buttons with the `delivery_id` embedded. Claude's responsibility ends at posting the card content; the bot owns button injection and delivery recording.
+1. Call `record_sourcing_deliveries` via the Lovelace MCP with the final batch (person_id, score, rationale per candidate). This creates `sourcing_deliveries` rows in Supabase and returns the rows including `delivery_id`s.
+2. Post a batch header to the role's Slack channel, then one profile card per candidate with Yes/Maybe/Pass/Details buttons already attached. Format per `references/slack-formatting.md`. Each button's `value` encodes the `delivery_id`.
 
 ### Step 7 — Update project state
 
@@ -75,10 +74,10 @@ Claude posts cards **without action buttons**. The Slack bot detects each posted
 ## Failure modes
 
 - **Apify down or rate-limited**: abort with a clear Slack note to the channel: "Couldn't source this run — Apify returned an error. Will retry on the next schedule."
-- **Lovelace API down**: abort. The Slack bot needs the API to record deliveries.
+- **Lovelace API down**: abort. Delivery recording requires the API.
 - **Slack posting partially fails**: log which cards were posted, mark the run as partial on `last_run_at` and note in a next-run queue.
 
 ## Non-goals
 
 - This skill does not create new Cowork scheduled tasks.
-- This skill does not write delivery or feedback records — the Slack bot handles that server-side.
+- This skill does not write feedback records — the Slack bot handles that when users click buttons.
