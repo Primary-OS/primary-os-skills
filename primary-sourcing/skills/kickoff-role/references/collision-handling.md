@@ -50,23 +50,11 @@ Example:
 - Final slug: `lighttable-founding-ae-annabelle-2`.
 - If that also exists: `lighttable-founding-ae-annabelle-3`, and so on.
 
-**Important**: call `create_sourcing_project` (step 8 in the main flow) with the final slug. If 409 conflict, the slug is taken — apply suffix and retry.
+**Important**: call `create_sourcing_search` (step 8 in the main flow) with the final slug. If 409 conflict, the slug is taken — apply suffix and retry.
 
 ## Slack channel naming
 
-Channel name = `sourcing-{search_slug}`. Slack has an 80-character limit and disallows certain characters.
-
-If the resulting channel name exceeds 80 chars, truncate the search title portion (not the company slug or email-prefix suffix) until it fits, keeping the suffix intact for uniqueness.
-
-## What happens if Slack reports `name_taken`
-
-Slack collision independent of Lovelace — another workspace channel has this name. Log a warning, then:
-
-1. Try `sourcing-{role_slug}-v2`.
-2. If still taken, try `-v3`, etc., up to `-v5`.
-3. If still taken, abort and surface the issue to the user.
-
-Call `update_sourcing_project` with `slack_channel_name` set to whatever name actually got created.
+Slack channel creation and naming is handled server-side by Lovelace when `create_sourcing_search` is called. The channel name follows the pattern `sourcing-{search_slug}`. Collision handling (email prefix, then sequential numbers) is automatic — the agent does not need to manage this.
 
 ## Search folder naming
 

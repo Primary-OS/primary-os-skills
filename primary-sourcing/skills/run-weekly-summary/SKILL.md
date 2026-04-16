@@ -21,7 +21,7 @@ Post a concise weekly recap to the search's Slack channel: counts, patterns, and
 ### Step 1 — Load role state
 
 - Read `./roles/{search_slug}/config.json` and `./roles/{search_slug}/SEARCH.md`.
-- Call `get_sourcing_status(project_id: sourcing_project_id)` to confirm the role is active. Skip paused/closed roles unless the user explicitly requested the summary.
+- Call `get_sourcing_status(search_id: sourcing_search_id)` to confirm the role is active. Skip paused/closed roles unless the user explicitly requested the summary.
 
 ### Step 2 — Fetch the past 7 days
 
