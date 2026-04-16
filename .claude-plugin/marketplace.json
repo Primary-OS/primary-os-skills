@@ -16,6 +16,13 @@
       "description": "Team-wide sourcing agent. Scaffold a portfolio company project, kick off role searches, automate LinkedIn sourcing with per-user dedup, and collect feedback through Slack.",
       "category": "productivity",
       "tags": ["sourcing", "recruiting", "talent", "slack", "airtable", "linkedin"]
+    },
+    {
+      "name": "affinity-crm",
+      "source": "./plugins/affinity-crm",
+      "description": "Single affinity-expert skill for Primary's Affinity MCP — load before pipeline, search, notes, or list tools. Workflow chains and error handling beyond raw tool descriptions.",
+      "category": "productivity",
+      "tags": ["affinity", "crm", "deal-pipeline", "venture-capital", "relationship-intelligence", "mcp"]
     }
   ]
 }
