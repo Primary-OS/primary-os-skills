@@ -42,7 +42,16 @@ Example:
 - Email prefix: `annabelle`.
 - Final slug: `lighttable-founding-ae-annabelle`.
 
-If the suffixed slug *still* collides (same teammate, genuinely second search with the same title), append `-2`, `-3`, etc.: `lighttable-founding-ae-annabelle-2`.
+If the email-prefix slug *still* collides (same teammate, genuinely second search with the same title — probably accidental), fall back to the Airtable record ID. Create the Search record first (step 8 in the main flow), then take the last 8 characters of the returned record ID, lowercased and sanitized to `[a-z0-9]`, and append it after the email prefix.
+
+Example:
+
+- `lighttable-founding-ae-annabelle` already exists.
+- Airtable returns `recAB1cD2eF3gH4iJ5` for the new record.
+- Final slug: `lighttable-founding-ae-annabelle-f3gh4ij5`.
+- Update the new record's `search_slug` field with the final slug.
+
+This is the only case where the record ID appears in the slug — it's the last-resort tiebreaker when the same person creates the same search twice in the same project.
 
 Write the final slug to the Airtable Search record's `search_slug` field.
 
@@ -76,10 +85,12 @@ roles/
 
 The folder name must match `search_slug` exactly. Downstream skills (`run-sourcing-batch`, `run-weekly-summary`) depend on this.
 
-## Why the email prefix as suffix?
+## Why this layered approach?
 
-1. It's guaranteed unique within the org — no two teammates share an email prefix.
-2. It's human-readable — teammates seeing `#sourcing-lighttable-founding-ae-annabelle` instantly know who owns the search.
-3. It's stable — doesn't depend on record creation order or external IDs.
+The suffix strategy prioritizes readability at each tier:
 
-Do not use UUIDs, timestamps, or Airtable record IDs — they defeat the readability goal.
+1. **No suffix** (base slug is free) — cleanest possible: `lighttable-founding-ae`.
+2. **Email prefix** (cross-teammate collision) — human-readable, instantly shows ownership: `lighttable-founding-ae-annabelle`.
+3. **Email prefix + record ID** (same person, duplicate title) — last resort, still scannable: `lighttable-founding-ae-annabelle-f3gh4ij5`.
+
+Do not use UUIDs, timestamps, or sequential counters at any tier — they defeat the readability goal.
