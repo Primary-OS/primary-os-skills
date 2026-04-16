@@ -1,0 +1,21 @@
+{
+  "name": "primary-sourcing",
+  "version": "0.1.0-alpha",
+  "description": "Team-wide sourcing agent for Primary Venture Partners. Scaffold a Cowork Project per portfolio company (or per sourcing target), kick off a role or search inside it, and run scheduled LinkedIn sourcing with per-user dedup, Slack feedback loops, and weekly digests.",
+  "author": {
+    "name": "Primary Venture Partners",
+    "email": "tech@primary.vc"
+  },
+  "homepage": "https://github.com/Primary-OS/primary-os-skills",
+  "repository": "https://github.com/Primary-OS/primary-os-skills",
+  "license": "UNLICENSED",
+  "keywords": [
+    "sourcing",
+    "recruiting",
+    "talent",
+    "outreach",
+    "slack",
+    "airtable",
+    "linkedin"
+  ]
+}

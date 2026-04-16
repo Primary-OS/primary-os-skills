@@ -1,0 +1,24 @@
+{
+  "plugin_version": "0.1.0",
+  "use_case": "",
+  "subject_name": "",
+  "subject_slug": "",
+  "search_title": "",
+  "search_slug": "",
+  "owner_email": "",
+  "airtable_search_id": "",
+  "slack_channel_id": "",
+  "slack_channel_name": "",
+  "search_md_path": "",
+  "schedule": {
+    "sourcing_days": [],
+    "sourcing_time": "",
+    "summary_day": "",
+    "summary_time": "",
+    "timezone": "America/New_York"
+  },
+  "sourcing_task_id": "",
+  "weekly_task_id": "",
+  "created_at": "",
+  "last_run_at": null
+}
