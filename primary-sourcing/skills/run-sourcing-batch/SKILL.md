@@ -24,7 +24,7 @@ If any are missing, abort with a clear message telling the user what to connect.
 
 - Read `./roles/{search_slug}/config.json` → captures `slack_channel_id`, `subject_name`, `search_title`, `use_case`, `sourcing_search_id`, etc.
 - Read `./roles/{search_slug}/SEARCH.md` → the search brain.
-- Call `get_sourcing_status(search_id: sourcing_search_id)` to confirm the search is active. If `project.status` is `paused` or `closed`, abort.
+- Call `get_sourcing_status(search_id: sourcing_search_id)` to confirm the search is active. If `search.status` is `paused` or `closed`, abort.
 - **Capture the `use_case` field** — this determines which scoring rubric to use in step 4, which Slack phrasing to use in step 7, and which context sources to re-check in step 2.
 
 ### Step 2 — Process feedback since last run
@@ -55,10 +55,10 @@ Be harsh regardless of use case — most profiles from a broad LinkedIn search s
 
 This is the heart of the team-version logic. See `references/dedup-algorithm.md` for the full algorithm. Summary:
 
-- Call `get_sourcing_status(search_id, scope: "project")` for same-search deliveries.
-- Call `get_sourcing_status(search_id, scope: "global")` for all LinkedIn URLs across the user's projects.
-- **Hard exclude**: candidates already delivered on this project. Never repeat.
-- **At most one cross-project repeat per batch**: if the user has seen a candidate on a different project (and the candidate isn't burned), they can appear once more.
+- Call `get_sourcing_status(search_id, scope: "search")` for same-search deliveries.
+- Call `get_sourcing_status(search_id, scope: "global")` for all LinkedIn URLs across the user's searches.
+- **Hard exclude**: candidates already delivered on this search. Never repeat.
+- **At most one cross-search repeat per batch**: if the user has seen a candidate on a different search (and the candidate isn't burned), they can appear once more.
 - **Prefer brand-new candidates**: fill the batch with people this user has never seen; only tap the eligible-repeat pool for one slot if needed.
 - **Never more than one repeat per batch**: if fewer than N brand-new candidates are available, post fewer cards, don't pad with repeats.
 
