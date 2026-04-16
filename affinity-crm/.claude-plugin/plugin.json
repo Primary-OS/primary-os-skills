@@ -9,6 +9,7 @@
   "homepage": "https://github.com/Primary-OS/primary-os-skills",
   "repository": "https://github.com/Primary-OS/primary-os-skills",
   "license": "UNLICENSED",
+  "skills": "./skills/",
   "keywords": [
     "affinity",
     "crm",
