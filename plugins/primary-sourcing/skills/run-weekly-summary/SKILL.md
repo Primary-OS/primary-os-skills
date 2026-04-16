@@ -1,6 +1,6 @@
 ---
 name: run-weekly-summary
-description: Posts a weekly sourcing digest to one search's Slack channel. Invoked programmatically by Cowork scheduled tasks (prompts that say "run the primary-sourcing:run-weekly-summary skill for role slug X"). Also usable manually when the user says "post the weekly digest for {role}", "run the weekly summary for {search_slug}", or "digest the last week for this role". Aggregates the past 7 days of Served Leads and Feedback records, identifies yes/maybe/no patterns, extracts recent SEARCH.md change log entries, and posts a Friday-style summary to the search's channel.
+description: Posts a weekly sourcing digest to one search's Slack channel. Invoked programmatically by Cowork scheduled tasks (prompts that say "run the primary-sourcing:run-weekly-summary skill for role slug X"). Also usable manually when the user says "post the weekly digest for {role}", "run the weekly summary for {search_slug}", or "digest the last week for this role". Aggregates the past 7 days of deliveries and feedback, identifies yes/maybe/pass patterns, extracts recent SEARCH.md change log entries, and posts a Friday-style summary to the search's channel.
 ---
 
 # Run the weekly summary for one role
@@ -13,29 +13,29 @@ Post a concise weekly recap to the search's Slack channel: counts, patterns, and
 
 ## Required MCPs
 
-- Airtable
 - Slack
+- Lovelace MCP (for `get_sourcing_status`)
 
 ## Procedure
 
 ### Step 1 — Load role state
 
 - Read `./roles/{search_slug}/config.json` and `./roles/{search_slug}/SEARCH.md`.
-- Fetch the Airtable Search record to confirm the role is active. Skip paused/closed roles unless the user explicitly requested the summary.
+- Call `get_sourcing_status(project_id: sourcing_project_id)` to confirm the role is active. Skip paused/closed roles unless the user explicitly requested the summary.
 
 ### Step 2 — Fetch the past 7 days
 
-From the user's Airtable base:
+From the `get_sourcing_status` response:
 
-- **Served Leads** for this role with `served_at >= 7 days ago`. Include linked candidate info + score + rationale.
-- **Feedback** for this role in the same window.
+- Read the `deliveries` array — each entry has `full_name`, `score`, `decision` (yes/maybe/no/null), `feedback_notes`, `delivered_at`.
+- Filter to deliveries from the past 7 days.
 
-Count buckets:
+Count buckets from the `stats` object or compute from deliveries:
 
-- `yes_count` — Served Leads with `feedback_status = "yes"`.
-- `maybe_count` — Served Leads with `feedback_status = "maybe"`.
-- `no_count` — Served Leads with `feedback_status = "no"`.
-- `pending_count` — Served Leads with `feedback_status = null`.
+- `yes_count` — deliveries with `decision = "yes"`.
+- `maybe_count` — deliveries with `decision = "maybe"`.
+- `pass_count` — deliveries with `decision = "no"` (displayed as "Pass" in the UI).
+- `pending_count` — deliveries with `decision = null`.
 - `total` — sum of all above.
 
 ### Step 3 — Extract recent Change Log entries from SEARCH.md
@@ -46,7 +46,7 @@ Read SEARCH.md, find the `## Change Log` section, extract entries dated within t
 
 Only run the analysis if there are at least 3 reviewed candidates (yes + maybe + no ≥ 3). Otherwise skip — not enough signal.
 
-Load the Search's `use_case` from its Airtable record. The analysis prompt adapts slightly so phrasing reads naturally (e.g. "candidates" vs. "founders" vs. "LPs") — but the shape of the analysis is consistent.
+Load the Search's `use_case` from `config.json`. The analysis prompt adapts slightly so phrasing reads naturally (e.g. "candidates" vs. "founders" vs. "LPs") — but the shape of the analysis is consistent.
 
 Prompt:
 
@@ -60,7 +60,7 @@ YES CANDIDATES ({yes_count}):
 MAYBE CANDIDATES ({maybe_count}):
 {formatted list}
 
-NO / PASS CANDIDATES ({no_count}):
+PASSED CANDIDATES ({pass_count}):
 {formatted list}
 
 SEARCH CRITERIA SHIFTS THIS WEEK (from SEARCH.md change log + Slack direction):
@@ -74,7 +74,7 @@ fundraising, "advisors" for advisor search.
 
 1. **Yes Trends** — What do the approved entries have in common?
 2. **Maybe Themes** — What's holding back Maybes? What would tip them to Yes?
-3. **No Patterns** — Top 2-3 reasons for rejection, with counts.
+3. **Pass Patterns** — Top 2-3 reasons for rejection, with counts.
 4. **Criteria Shifts** — Any changes to sourcing direction this week and why.
 
 Do NOT include action items or suggestions — just the analysis.
@@ -90,7 +90,7 @@ Post a Block Kit message to the search's Slack channel:
 *{subject_name} — {search_title}*
 
 • *{total} profiles* surfaced this week
-• ✅ {yes_count} Yes  ·  🤔 {maybe_count} Maybe  ·  ❌ {no_count} No  ·  ⏳ {pending_count} Pending
+• ✅ {yes_count} Yes  ·  🤔 {maybe_count} Maybe  ·  ❌ {pass_count} Pass  ·  ⏳ {pending_count} Pending
 
 {analysis section from step 4, if present}
 
@@ -103,7 +103,7 @@ Use the analysis text as the body of a `section` block. Separate header, stats, 
 
 ### Step 6 — Log the digest
 
-Write a Feedback record (or similar log table) noting the digest was posted, with the analysis text cached for reference. This lets future summaries compare week-over-week.
+Log the digest post in the search's Slack channel thread. The Slack bot captures direction-type feedback from channel messages automatically. No separate write to Supabase is needed from Claude.
 
 ## Edge cases
 

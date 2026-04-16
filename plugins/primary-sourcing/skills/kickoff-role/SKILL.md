@@ -1,29 +1,27 @@
 ---
 name: kickoff-role
-description: Kicks off a new search inside an already-scaffolded Primary sourcing Cowork Project, regardless of use case (recruiting, GTM, investment sourcing, LP/fund sourcing, advisor sourcing, etc.). Use when the user says things like "kick off a role", "kick off a new search", "start a search for {title}", "new search for {role}", "start sourcing for {prospect / deal / founder / advisor}", "kick off an investment search", "kick off an LP search", or any phrasing that implies beginning one specific search inside the current Project. Reads the Project's use case from the scaffold marker and adapts every follow-up question, SEARCH.md section, and downstream scheduled task to that use case. Creates the Slack channel, Airtable Search record, role folder, and two recurring scheduled tasks (sourcing batch + weekly digest).
+description: Kicks off a new search inside an already-scaffolded Primary sourcing Cowork Project, regardless of use case (recruiting, GTM, investment sourcing, LP/fund sourcing, advisor sourcing, etc.). Use when the user says things like "kick off a role", "kick off a new search", "start a search for {title}", "new search for {role}", "start sourcing for {prospect / deal / founder / advisor}", "kick off an investment search", "kick off an LP search", or any phrasing that implies beginning one specific search inside the current Project. Reads the Project's use case from the scaffold marker and adapts every follow-up question, SEARCH.md section, and downstream scheduled task to that use case. Creates the Slack channel, Lovelace sourcing project, role folder, and two recurring scheduled tasks (sourcing batch + weekly digest).
 ---
 
 # Kick off a new search
 
-Run the full kickoff flow for a single search inside a Primary sourcing Cowork Project. At the end of this skill, the search has a Slack channel, an Airtable Search record, a role folder under `roles/{search_slug}/`, and two Cowork scheduled tasks (sourcing + weekly digest).
+Run the full kickoff flow for a single search inside a Primary sourcing Cowork Project. At the end of this skill, the search has a Slack channel, a Lovelace sourcing project, a role folder under `roles/{search_slug}/`, and two Cowork scheduled tasks (sourcing + weekly digest).
 
 The skill adapts to the Project's use case — recruiting, GTM sourcing, investment sourcing, LP/fund sourcing, advisor sourcing, or a custom "other" case. Terminology, follow-up questions, and SEARCH.md generation all branch based on what the Project was scaffolded for.
 
 ## Read before running
 
 - `${CLAUDE_PLUGIN_ROOT}/skills/kickoff-role/references/use-cases.md` — exactly how each use case adapts.
-- `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/context-intake.md` — the intake principles apply here too.
-
 ## Prerequisites
 
 1. **Project is scaffolded.** Read `./.primary-sourcing-project`. If missing or malformed, abort and offer to run `start-sourcing-project` first.
 2. **Capture scaffold metadata** from the marker: `use_case`, `subject_name`, `subject_slug`.
-3. **Required MCPs connected**: Slack, Airtable (user's own base), scheduled-tasks, Lovelace MCP (for Apify search). See `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/mcp-prereqs.md`. Abort clearly if any required MCP is missing.
-4. **Identify the search owner**: the current Cowork user. Their email is the `owner_email` on the Airtable Search record.
+3. **Required MCPs connected**: Slack, scheduled-tasks, Lovelace MCP (for LinkedIn search + sourcing project CRUD). See `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/mcp-prereqs.md`. Abort clearly if any required MCP is missing.
+4. **Identify the search owner**: the current Cowork user. Lovelace tracks `created_by` automatically from the authenticated session.
 
 ## Procedure
 
-All user-facing questions use AskUserQuestion, never plain text. Batch up to 4 questions per call. See `references/context-intake.md` for the intake principles — they are not optional.
+All user-facing questions use AskUserQuestion, never plain text. Batch up to 4 questions per call. See `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/context-intake.md` for the intake principles — they are not optional.
 
 ### Step 1 — Confirm use case and subject carried forward
 
@@ -111,30 +109,31 @@ Base slug = `{subject_slug}-{search_slug}`. See `references/collision-handling.m
 
 ### Step 7.5 — Check for duplicate searches
 
-Before creating any resources, query the user's Airtable Searches table for an existing record matching `(owner_email, search_slug)`. If a match is found, prompt the user with AskUserQuestion:
+Before creating any resources, call `create_sourcing_project` with the slug. If the response is a **409 conflict**, the slug is already taken. Prompt the user with AskUserQuestion:
 
-> You already have a search called **{search_title}** in this project — here's the existing one:
-> - Slug: `{existing_slug}`
-> - Status: {status}
-> - Slack channel: #{channel_name}
-> - Created: {created_at}
+> You already have a search with slug `{search_slug}` in this project.
 >
 > - **Use the existing search** (opens the role folder)
 > - **Create a new one anyway** (will be suffixed to avoid collision)
 
-If the user picks the existing search, abort kickoff and point them to the role folder. If they want a new one, proceed — collision handling in step 7 will suffix the slug.
+If the user picks the existing search, abort kickoff and point them to the role folder. If they want a new one, proceed — collision handling in step 7 will suffix the slug and retry `create_sourcing_project`.
 
-### Step 8 — Create the Airtable Search record
+### Step 8 — Create the Lovelace sourcing project
 
-Use the Airtable MCP to create a record in the user's Searches table (note: table is named "Searches" for generality, but maps 1:1 to what the legacy system called "Roles"). Fields per `references/scheduled-task-prompts.md`.
+Call `create_sourcing_project` via the Lovelace MCP with:
+- `company_name`: the subject name
+- `role_title`: the search title
+- `slug`: the final slug from step 7
+- `use_case`: from the scaffold marker
+- `search_criteria`: the SEARCH.md content from step 6
 
-The slug written to the record is the final slug from step 7 — either the base slug (if no collision) or the email-prefix-suffixed slug (if collision). See `references/collision-handling.md`.
+Store the returned `id` as `sourcing_project_id` in config.json.
 
 ### Step 9 — Create the private Slack channel
 
 Channel name: `sourcing-{search_slug}`. Invite the search owner. Handle name-taken collisions per `references/collision-handling.md` (try `-v2`, `-v3`, up to `-v5`).
 
-After creating the channel, update the Airtable Search record (created in step 8) to store `slack_channel_id` and `slack_channel_name`.
+After creating the channel, call `update_sourcing_project` with `slack_channel_id` and `slack_channel_name`.
 
 ### Step 10 — Write the role folder
 
@@ -144,16 +143,16 @@ Create `./roles/{search_slug}/` with:
 | ----------------- | ---------------------------------------------------------------------------------------------------------- |
 | `SEARCH.md`       | The synthesized brain from step 6.                                                                         |
 | `KICKOFF.md`      | Snapshot of user input + all raw tool findings — durable audit trail.                                      |
-| `config.json`     | Filled from `${CLAUDE_PLUGIN_ROOT}/templates/role/config-template.json` with final search data + use case. |
+| `config.json`     | Filled from `${CLAUDE_PLUGIN_ROOT}/templates/role/config-template.json` with final search data, use case, and `sourcing_project_id`. |
 
 ### Step 11 — Create recurring Cowork scheduled tasks
 
-Two tasks using the scheduled-tasks MCP. Prompt templates in `references/scheduled-task-prompts.md`. The prompts are identical across use cases — the logic branches inside `run-sourcing-batch` based on the Search record's stored use case.
+Two tasks using the scheduled-tasks MCP. Prompt templates in `references/scheduled-task-prompts.md`. The prompts are identical across use cases — the logic branches inside `run-sourcing-batch` based on the project's stored use case.
 
 - **Sourcing task**: runs on the user's chosen schedule.
 - **Weekly digest task**: runs Fridays at 4pm (or user's choice). Skip if user opted out.
 
-Store task IDs on the Airtable Search record.
+Store task IDs in `config.json` (task IDs are local state, not needed in Supabase).
 
 ### Step 12 — Post the intro message to Slack
 
@@ -171,7 +170,7 @@ Core elements in every intro:
 Cowork-side summary:
 
 - Search slug and Slack channel name.
-- Airtable record ID.
+- Sourcing project ID.
 - Scheduled task IDs + cadence.
 - Reminder: feedback in Slack → brain updates automatically.
 

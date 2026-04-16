@@ -18,7 +18,7 @@ Every intro includes:
 ```
 🚀 *Sourcing search launched: {role_title} at {subject_name}*
 
-I'll source candidates and post them here with Yes / Maybe / No buttons.
+I'll source candidates and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click the buttons on each profile card to give feedback
@@ -38,7 +38,7 @@ Owner: <@{owner_slack_id}>
 ```
 🎯 *Prospect sourcing launched: {persona_title} for {subject_name}'s GTM*
 
-I'll surface buyer prospects and post them here with Yes / Maybe / No buttons.
+I'll surface buyer prospects and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click buttons on each card to give feedback
@@ -59,7 +59,7 @@ Owner: <@{owner_slack_id}>
 🧭 *Investment search launched: {archetype_title}*
 _Thesis: {subject_name}_
 
-I'll surface founders and companies matching this thesis and post them here with Yes / Maybe / No buttons.
+I'll surface founders and companies matching this thesis and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click buttons on each profile to give feedback on fit
@@ -80,7 +80,7 @@ Owner: <@{owner_slack_id}>
 💼 *LP / fund search launched: {archetype_title}*
 _For: {subject_name}_
 
-I'll surface LPs, GPs, or ecosystem partners matching this mandate and post them here with Yes / Maybe / No buttons.
+I'll surface LPs, GPs, or ecosystem partners matching this mandate and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click buttons on each profile to give feedback
@@ -101,7 +101,7 @@ Owner: <@{owner_slack_id}>
 🧠 *Advisor search launched: {expertise_title}*
 _For: {subject_name}_
 
-I'll surface advisors and subject matter experts matching this shape and post them here with Yes / Maybe / No buttons.
+I'll surface advisors and subject matter experts matching this shape and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click buttons on each profile to give feedback
@@ -122,7 +122,7 @@ Owner: <@{owner_slack_id}>
 🔍 *Sourcing search launched: {title}*
 _Project: {subject_name}_
 
-I'll surface matches and post them here with Yes / Maybe / No buttons.
+I'll surface matches and post them here with Yes / Maybe / Pass buttons.
 
 *How to interact with me:*
 • Click buttons on each card to give feedback
