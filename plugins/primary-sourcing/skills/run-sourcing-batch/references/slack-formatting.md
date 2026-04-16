@@ -13,7 +13,25 @@ Posted as a simple `chat.postMessage` with the text above (no blocks).
 
 ## Profile card (one per candidate)
 
-Use Block Kit. Structure:
+Matches the Lovelace lead card design:
+
+```
+*1. Jane Chen*  ·  Score *9*  ·  <https://linkedin.com/in/janechen|LinkedIn>
+Staff ML Engineer  ·  DeepMind  ·  San Francisco Bay Area
+> Enterprise AI, 20+ yrs eng leadership. Strong infrastructure-to-startup bridge.
+
+[ Yes (primary) ]  [ Maybe ]  [ Pass ]  [ Details ]
+```
+
+## Posting flow
+
+Claude creates delivery rows via the `record_sourcing_deliveries` MCP tool **before** posting cards. This returns `delivery_id`s which are embedded in the button actions. Cards are posted with buttons already attached — no second pass needed.
+
+1. Call `record_sourcing_deliveries` with the batch (person_id, score, rationale per candidate). Returns delivery rows with `id` fields.
+2. Post each card to Slack using the Block Kit below, with `delivery_id` wired into the action buttons.
+3. The Slack bot handles button clicks and feedback recording from there.
+
+### Card Block Kit (with actions)
 
 ```json
 {
@@ -22,45 +40,23 @@ Use Block Kit. Structure:
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "*{name}*\n{current_title} @ {current_company}"
-      }
-    },
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": "<{linkedin_url}|LinkedIn Profile>"
+        "text": "*{index}. {name}*  ·  Score *{score}*  ·  <{linkedin_url}|LinkedIn>\n{current_title}  ·  {current_company}  ·  {location}"
       }
     },
     {
       "type": "context",
       "elements": [
-        { "type": "mrkdwn", "text": "_{rationale}_" }
+        { "type": "mrkdwn", "text": "> {rationale}" }
       ]
     },
     {
       "type": "actions",
+      "block_id": "sourcing_actions_{delivery_id}",
       "elements": [
-        {
-          "type": "button",
-          "text": { "type": "plain_text", "text": "✓  Yes" },
-          "style": "primary",
-          "action_id": "candidate_yes",
-          "value": "{encoded_meta}"
-        },
-        {
-          "type": "button",
-          "text": { "type": "plain_text", "text": "◌  Maybe" },
-          "action_id": "candidate_maybe",
-          "value": "{encoded_meta}"
-        },
-        {
-          "type": "button",
-          "text": { "type": "plain_text", "text": "✗  No" },
-          "style": "danger",
-          "action_id": "candidate_no",
-          "value": "{encoded_meta}"
-        }
+        { "type": "button", "text": { "type": "plain_text", "text": "Yes" }, "style": "primary", "action_id": "sourcing_yes_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Maybe" }, "action_id": "sourcing_maybe_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Pass" }, "action_id": "sourcing_pass_{delivery_id}", "value": "{delivery_id}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Details" }, "action_id": "sourcing_details_{delivery_id}", "value": "{delivery_id}" }
       ]
     },
     { "type": "divider" }
@@ -71,24 +67,27 @@ Use Block Kit. Structure:
 
 The fallback `text` field is required for notifications and accessibility.
 
+## Button conventions
+
+- **Yes** = primary style (green). All others default (no danger style — Lovelace convention).
+- **Pass** opens a modal with structured reason select + optional notes.
+- **Maybe** opens a modal with optional notes.
+- **Details** shows person snapshot.
+
 ## Button `value` encoding
 
-Each button value is a JSON-stringified object:
+Each button value is the `delivery_id` (UUID string). Slack limits button values to 2000 chars — a single UUID is well under that.
 
-```json
-{
-  "served_id": "recAbcd123",
-  "candidate_id": "recEfgh456",
-  "role_id": "recIjkl789",
-  "user_email": "logan@primary.vc"
-}
-```
+## Status updates after feedback
 
-The Slack bot (Lovelace side) reads this on click and writes a Feedback record to Airtable. Slack limits button values to 2000 chars — the object above is well under that.
+The bot replaces buttons with a status line:
+- `"Marked as *Yes* by <@U123>"`
+- `"*Maybe* — "notes" by <@U123>"`
+- `"*Passed* geography by <@U123>"`
 
 ## If the candidate has no rationale
 
-Skip the context block entirely. Don't render `_(no rationale)_` or similar — it's visual noise.
+Skip the context block entirely. Don't render empty rationale — it's visual noise.
 
 ## Pacing between posts
 
@@ -102,10 +101,3 @@ If the final batch is zero candidates, post:
 🔍 *Sourcing run — {date}*
 No new candidates this run. Either we're caught up on the pipeline or the criteria need to broaden. Type any guidance into this channel and I'll adjust.
 ```
-
-## Rationale for the format
-
-- Two sections (name/title line + LinkedIn link) instead of one big block: makes the card skimmable — the reviewer can glance at 25 cards in 60 seconds.
-- `context` block for rationale: visually lighter than a full section, signals "supporting info".
-- Three buttons: Yes is primary (green), No is danger (red), Maybe is neutral. The styling matters — Yes/No stand out, Maybe fades.
-- Divider between cards: clear visual separation at scale.

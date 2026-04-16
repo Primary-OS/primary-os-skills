@@ -2,7 +2,7 @@
 
 This Cowork Project is a **{{USE_CASE}}** sourcing workspace for **{{SUBJECT_NAME}}**. It was scaffolded by the `primary-sourcing` plugin.
 
-Every teammate with access to this Project can kick off new searches inside it. Individual searches are each owned by the teammate who kicked them off — scheduled tasks run on their account, and their Airtable base holds the dedup history.
+Every teammate with access to this Project can kick off new searches inside it. Individual searches are each owned by the teammate who kicked them off — scheduled tasks run on their account, and their sourcing history is tracked per-user in the Lovelace platform.
 
 ## Project structure
 
@@ -18,7 +18,7 @@ Every teammate with access to this Project can kick off new searches inside it. 
     └── {search-slug}/               # one folder per kicked-off search
         ├── SEARCH.md                # the evolving search brain
         ├── KICKOFF.md               # kickoff context snapshot
-        └── config.json              # channel, Airtable IDs, schedule, use case
+        └── config.json              # channel, sourcing project ID, schedule, use case
 ```
 
 ## How to interact with this Project
@@ -37,7 +37,7 @@ The agent will invoke the `primary-sourcing:kickoff-role` skill and walk through
 2. Asking targeted follow-up questions with AskUserQuestion.
 3. Generating the SEARCH.md brain.
 4. Creating a private Slack channel (`sourcing-{slug}`).
-5. Creating an Airtable Search record in your base.
+5. Creating a Lovelace sourcing project.
 6. Writing the `roles/{slug}/` folder.
 7. Creating recurring Cowork scheduled tasks for sourcing batches and weekly digests.
 
@@ -53,8 +53,8 @@ Say "run sourcing now for {search_slug}" — the `primary-sourcing:run-sourcing-
 
 - **Default behaviors come from the `primary-sourcing` plugin.** Follow its skill instructions whenever the user's request touches sourcing, searches, candidates, prospects, founders, LPs, or advisors inside this Project.
 - **Read `.primary-sourcing-project` first** whenever starting a Project-level task. It tells you the use case and subject; skill prompts adapt accordingly.
-- **Never create files outside this Cowork Project workspace.** All sourcing state lives inside the Project (for shared context) and in the current teammate's Airtable base (for per-user dedup history).
-- **Role ownership is per teammate.** A search created by user A belongs to user A's scheduled tasks and Airtable. Other teammates can read the Project and see the searches but shouldn't edit another user's search folder without coordination.
+- **Never create files outside this Cowork Project workspace.** All sourcing state lives inside the Project (for shared context) and in the Lovelace platform (for per-user dedup history and feedback).
+- **Role ownership is per teammate.** A search created by user A belongs to user A's scheduled tasks and Lovelace account. Other teammates can read the Project and see the searches but shouldn't edit another user's search folder without coordination.
 - **Respect the dedup rules.** A candidate served once is never shown again on the same search; a candidate can appear at most once more on a different search before being burned. See the plugin's dedup algorithm reference.
 
 ## Use case: {{USE_CASE}}
@@ -63,12 +63,11 @@ The language in Slack messages, AskUserQuestion prompts, and SEARCH.md generatio
 
 See the plugin's `skills/kickoff-role/references/use-cases.md` for the full definition of each use case.
 
-## Connectors required for sourcing to actually work
+## Required connectors
 
 - **Slack** — per-search channels + feedback.
-- **Airtable** — per-user base with Searches, Candidates, Served Leads, Feedback tables.
 - **scheduled-tasks** — Cowork-native, should be always available.
-- **Lovelace MCP** — shared Apify LinkedIn search for Primary.
+- **Lovelace MCP** — LinkedIn search + sourcing project CRUD + dedup state.
 
 Optional but recommended: Granola, Notion, Google Drive, Gmail, Affinity — used during kickoff to build a grounded SEARCH.md.
 
@@ -76,4 +75,4 @@ If any required connector is missing, `kickoff-role` will tell you what to conne
 
 ## Where to report issues
 
-File a Linear issue in the "Team Recruiting Sourcing Agent" project (even if your use case isn't recruiting — that Linear project tracks the plugin itself), or ping `#ai-tools` in Slack.
+File a Linear issue in the "Claude Plugin Marketplace" project, or ping `#ai-tools` in Slack.
