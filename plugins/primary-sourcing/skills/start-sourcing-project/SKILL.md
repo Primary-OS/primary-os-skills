@@ -113,7 +113,7 @@ Marker file content:
 
 ```json
 {
-  "plugin_version": "0.1.0",
+  "plugin_version": "0.2.0",
   "use_case": "{use_case}",
   "subject_name": "{subject_name}",
   "subject_slug": "{subject_slug}",

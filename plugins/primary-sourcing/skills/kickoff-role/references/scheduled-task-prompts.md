@@ -4,7 +4,7 @@ This reference defines the exact prompt text used when creating Cowork scheduled
 
 ## Lovelace MCP sourcing tools
 
-All sourcing state (projects, deliveries, feedback) lives in Supabase via the Lovelace platform. Claude reads state via these tools and never writes tracking data directly — the Slack bot handles delivery recording and feedback writes server-side.
+All sourcing state (projects, deliveries, feedback) lives in Supabase via the Lovelace platform. Claude records deliveries via `record_sourcing_deliveries` and reads state via `get_sourcing_status`. The Slack bot handles feedback writes when users click buttons.
 
 ### `create_sourcing_project`
 
