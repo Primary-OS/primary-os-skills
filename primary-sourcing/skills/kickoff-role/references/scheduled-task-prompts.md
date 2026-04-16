@@ -27,17 +27,17 @@ Reads search state, deliveries, and feedback.
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
 | search_id | string | yes | UUID from `create_sourcing_search` |
-| scope | string | no | `"project"` (default) or `"global"` |
+| scope | string | no | `"search"` (default) or `"global"` |
 
-**scope=project** returns:
-- `project` — id, slug, status, last_run_at
+**scope=search** returns:
+- `search` — id, slug, status, last_run_at
 - `deliveries` — each delivered person with: person_id, linkedin_url, full_name, score, decision (yes/maybe/no/null), feedback_notes, delivered_at
 - `stats` — total, yes, maybe, no, pending counts
 
 **scope=global** returns:
-- `global_linkedin_urls` — sorted list of every LinkedIn URL delivered across ALL of this user's projects
+- `global_linkedin_urls` — sorted list of every LinkedIn URL delivered across ALL of this user's searches
 
-Use `scope=project` for feedback processing and `scope=global` for cross-project dedup.
+Use `scope=search` for feedback processing and `scope=global` for cross-search dedup.
 
 ### `update_sourcing_search`
 

@@ -16,7 +16,7 @@ The skill adapts to the Project's use case — recruiting, GTM sourcing, investm
 
 1. **Project is scaffolded.** Read `./.primary-sourcing-project`. If missing or malformed, abort and offer to run `start-sourcing-project` first.
 2. **Capture scaffold metadata** from the marker: `use_case`, `subject_name`, `subject_slug`.
-3. **Required MCPs connected**: Slack, scheduled-tasks, Lovelace MCP (for LinkedIn search + sourcing project CRUD). See `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/mcp-prereqs.md`. Abort clearly if any required MCP is missing.
+3. **Required MCPs connected**: Slack, scheduled-tasks, Lovelace MCP (for LinkedIn search + sourcing search CRUD). See `${CLAUDE_PLUGIN_ROOT}/skills/start-sourcing-project/references/mcp-prereqs.md`. Abort clearly if any required MCP is missing.
 4. **Identify the search owner**: the current Cowork user. Lovelace tracks `created_by` automatically from the authenticated session.
 
 ## Procedure
@@ -111,7 +111,7 @@ Base slug = `{subject_slug}-{search_slug}`. See `references/collision-handling.m
 
 Before creating any resources, call `create_sourcing_search` with the slug. If the response is a **409 conflict**, the slug is already taken. Prompt the user with AskUserQuestion:
 
-> You already have a search with slug `{search_slug}` in this project.
+> You already have a search with slug `{search_slug}` in this workspace.
 >
 > - **Use the existing search** (opens the role folder)
 > - **Create a new one anyway** (will be suffixed to avoid collision)
@@ -147,7 +147,7 @@ Create `./roles/{search_slug}/` with:
 
 ### Step 11 — Create recurring Cowork scheduled tasks
 
-Two tasks using the scheduled-tasks MCP. Prompt templates in `references/scheduled-task-prompts.md`. The prompts are identical across use cases — the logic branches inside `run-sourcing-batch` based on the project's stored use case.
+Two tasks using the scheduled-tasks MCP. Prompt templates in `references/scheduled-task-prompts.md`. The prompts are identical across use cases — the logic branches inside `run-sourcing-batch` based on the search's stored use case.
 
 - **Sourcing task**: runs on the user's chosen schedule.
 - **Weekly digest task**: runs Fridays at 4pm (or user's choice). Skip if user opted out.
@@ -163,7 +163,7 @@ The intro message is posted automatically by Lovelace when the channel is create
 Cowork-side summary:
 
 - Search slug and Slack channel name.
-- Sourcing project ID.
+- Sourcing search ID.
 - Scheduled task IDs + cadence.
 - Reminder: feedback in Slack → brain updates automatically.
 

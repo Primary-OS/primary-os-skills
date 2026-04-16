@@ -1,6 +1,6 @@
 # Slug and Channel Collision Handling
 
-Role slugs drive the Lovelace project key, the Slack channel name, and the role folder name. Collisions are rare but must be handled deterministically.
+Role slugs drive the Lovelace search key, the Slack channel name, and the role folder name. Collisions are rare but must be handled deterministically.
 
 ## Base slug construction
 
@@ -17,7 +17,7 @@ Rules:
 
 ## When the base slug is free
 
-No existing Lovelace sourcing project with this slug. Use it directly — no suffix needed.
+No existing Lovelace sourcing search with this slug. Use it directly — no suffix needed.
 
 ## When the base slug is taken
 

@@ -40,7 +40,7 @@ claude --plugin-dir /path/to/this/plugin/folder
 | Skill                      | Purpose                                                                                             | Typically invoked by                               |
 | -------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | `start-sourcing-project`   | Scaffold a fresh Cowork Project for ongoing sourcing at one subject. Pick use case, gather context. | User, once per subject (PortCo, thesis, fundraise) |
-| `kickoff-role`             | Kick off a new search inside a scaffolded Project. Creates Slack channel + Lovelace project + tasks.| User, per search                                   |
+| `kickoff-role`             | Kick off a new search inside a scaffolded Project. Creates Lovelace search + Slack channel + tasks.| User, per search                                   |
 | `run-sourcing-batch`       | Run one sourcing batch. Dedup-aware. Posts profile cards to Slack.                                  | Cowork scheduled tasks (and manual)                |
 | `run-weekly-summary`       | Post the weekly digest to a search's Slack channel.                                                 | Cowork scheduled tasks (and manual)                |
 
@@ -54,9 +54,9 @@ claude --plugin-dir /path/to/this/plugin/folder
 
 ## Dedup rules (universal across use cases)
 
-1. Never serve the same lead twice on the same project.
-2. At most one cross-project repeat per batch per user.
-3. Cross-project repeats are burned on serve — permanent exclusion for that user.
+1. Never serve the same lead twice on the same search.
+2. At most one cross-search repeat per batch per user.
+3. Cross-search repeats are burned on serve — permanent exclusion for that user.
 4. Scope is per-user — teammates' histories are independent.
 
 Full algorithm: `skills/run-sourcing-batch/references/dedup-algorithm.md`.
@@ -67,7 +67,7 @@ Full algorithm: `skills/run-sourcing-batch/references/dedup-algorithm.md`.
 |-----------|---------|
 | **Slack** | Per-search channels, profile cards, feedback buttons, surface commands, weekly digests |
 | **scheduled-tasks** | Recurring sourcing batches + weekly digests |
-| **Lovelace MCP** | LinkedIn search (shared Apify account), sourcing project CRUD, delivery/feedback state |
+| **Lovelace MCP** | LinkedIn search (shared Apify account), sourcing search CRUD, delivery/feedback state |
 
 Optional for richer kickoff context: Granola, Notion, Google Drive, Gmail, Affinity.
 
