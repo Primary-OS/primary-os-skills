@@ -1,8 +1,8 @@
 {
-  "name": "primary-os",
+  "name": "Primary-OS",
   "owner": {
     "name": "Primary Venture Partners",
-    "email": "tech@primary.vc"
+    "email": "logan@primary.vc"
   },
   "metadata": {
     "description": "Official plugin marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools for the Primary team.",
