@@ -76,7 +76,7 @@ The `.claude-plugin/` format is specific to Claude Code and Cowork. However, all
 **Key paths for direct integration:**
 
 ```
-plugins/primary-sourcing/
+primary-sourcing/
   skills/
     start-sourcing-project/SKILL.md    # Scaffold a new project
     kickoff-role/SKILL.md              # Kick off a search
@@ -92,7 +92,7 @@ For hands-off team rollout, IT can push the marketplace and enabled plugins thro
 
 ## Contributing
 
-1. Add your plugin under `plugins/<plugin-name>/` with a `.claude-plugin/plugin.json` manifest.
+1. Add your plugin under `<plugin-name>/` with a `.claude-plugin/plugin.json` manifest.
 2. Register it in `.claude-plugin/marketplace.json`.
 3. Open a pull request. Keep plugins self-contained.
 
