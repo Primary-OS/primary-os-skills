@@ -1,0 +1,21 @@
+{
+  "name": "primary-os",
+  "owner": {
+    "name": "Primary Venture Partners",
+    "email": "tech@primary.vc"
+  },
+  "metadata": {
+    "description": "Official plugin marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools for the Primary team.",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "primary-sourcing",
+      "source": "./plugins/primary-sourcing",
+      "description": "Team-wide sourcing agent. Scaffold a portfolio company project, kick off role searches, automate LinkedIn sourcing with per-user dedup, and collect feedback through Slack.",
+      "category": "productivity",
+      "tags": ["sourcing", "recruiting", "talent", "slack", "airtable", "linkedin"]
+    }
+  ]
+}
