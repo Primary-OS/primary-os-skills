@@ -6,7 +6,7 @@
   "search_title": "",
   "search_slug": "",
   "owner_email": "",
-  "airtable_search_id": "",
+  "sourcing_project_id": "",
   "slack_channel_id": "",
   "slack_channel_name": "",
   "search_md_path": "",
@@ -20,5 +20,6 @@
   "sourcing_task_id": "",
   "weekly_task_id": "",
   "created_at": "",
-  "last_run_at": null
+  "last_run_at": null,
+  "burned_urls": []
 }

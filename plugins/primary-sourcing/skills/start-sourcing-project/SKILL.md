@@ -140,7 +140,7 @@ Send a brief summary:
 
 ## Guardrails
 
-- Never create Slack channels, Airtable records, or scheduled tasks at scaffold time. Those are per-search concerns for `kickoff-role`.
+- Never create Slack channels, Lovelace sourcing projects, or scheduled tasks at scaffold time. Those are per-search concerns for `kickoff-role`.
 - Never write outside the current Cowork Project workspace.
 - The use case chosen here is sticky — changing it later is disruptive. If there's any ambiguity in step 2, ask again rather than guess.
 - The `.primary-sourcing-project` marker is the source of truth for downstream skills. Keep it well-formed JSON and never overwrite silently.

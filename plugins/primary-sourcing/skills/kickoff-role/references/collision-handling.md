@@ -1,6 +1,6 @@
 # Slug and Channel Collision Handling
 
-Role slugs drive the Airtable key, the Slack channel name, and the role folder name. Collisions are rare but must be handled deterministically.
+Role slugs drive the Lovelace project key, the Slack channel name, and the role folder name. Collisions are rare but must be handled deterministically.
 
 ## Base slug construction
 
@@ -17,7 +17,7 @@ Rules:
 
 ## When the base slug is free
 
-No existing Airtable Searches record with this slug. Use it directly — no suffix needed.
+No existing Lovelace sourcing project with this slug. Use it directly — no suffix needed.
 
 ## When the base slug is taken
 
@@ -50,7 +50,7 @@ Example:
 - Final slug: `lighttable-founding-ae-annabelle-2`.
 - If that also exists: `lighttable-founding-ae-annabelle-3`, and so on.
 
-**Important**: always create the Airtable Search record (step 8 in the main flow) before resolving the final slug. The record must exist first so the record ID is safely stored. Then update the record's `search_slug` field with the final resolved slug.
+**Important**: call `create_sourcing_project` (step 8 in the main flow) with the final slug. If 409 conflict, the slug is taken — apply suffix and retry.
 
 ## Slack channel naming
 
@@ -60,13 +60,13 @@ If the resulting channel name exceeds 80 chars, truncate the search title portio
 
 ## What happens if Slack reports `name_taken`
 
-Slack collision independent of Airtable — another workspace channel has this name (maybe from an old run before the Airtable record was deleted). Log a warning, then:
+Slack collision independent of Lovelace — another workspace channel has this name. Log a warning, then:
 
 1. Try `sourcing-{role_slug}-v2`.
 2. If still taken, try `-v3`, etc., up to `-v5`.
 3. If still taken, abort and surface the issue to the user.
 
-Update `slack_channel_name` on the Airtable record with whatever name actually got created.
+Call `update_sourcing_project` with `slack_channel_name` set to whatever name actually got created.
 
 ## Search folder naming
 
@@ -90,4 +90,4 @@ The suffix strategy prioritizes readability at each tier:
 2. **Email prefix** (cross-teammate collision) — human-readable, instantly shows ownership: `lighttable-founding-ae-annabelle`.
 3. **Email prefix + sequential number** (same person, duplicate title) — still scannable: `lighttable-founding-ae-annabelle-2`.
 
-Do not use UUIDs, timestamps, or Airtable record IDs in the slug — they defeat the readability goal.
+Do not use UUIDs, timestamps, or database IDs in the slug — they defeat the readability goal.

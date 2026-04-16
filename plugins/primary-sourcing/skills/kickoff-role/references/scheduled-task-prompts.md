@@ -1,98 +1,94 @@
-# Scheduled Task Prompts and Airtable Schema
+# Scheduled Task Prompts and Lovelace Sourcing Tools
 
-This reference defines the exact prompt text used when creating Cowork scheduled tasks, plus the Airtable schema the plugin expects to find.
+This reference defines the exact prompt text used when creating Cowork scheduled tasks, plus the Lovelace MCP tools the plugin uses for sourcing state management.
 
-## Airtable schema (per-user base)
+## Lovelace MCP sourcing tools
 
-Each teammate connects their own Airtable base. The base should contain four tables. The plugin assumes these exact table names — if the user's base doesn't have them, provide setup instructions before proceeding.
+All sourcing state (projects, deliveries, feedback) lives in Supabase via the Lovelace platform. Claude reads state via these tools and never writes tracking data directly — the Slack bot handles delivery recording and feedback writes server-side.
 
-The table is named **Searches** for generality — a "Search" is one kicked-off sourcing effort of any use case (a role for recruiting, a buyer persona for GTM, a founder archetype for investment sourcing, etc.).
+### `create_sourcing_project`
 
-### Searches
-One record per kicked-off search.
+Creates a new sourcing project.
 
-| Field                | Type          | Notes                                                                                              |
-| -------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| `search_id`          | Auto          | Airtable record ID.                                                                                |
-| `use_case`           | Single select | `recruiting-portco` / `gtm-sourcing-portco` / `investment-sourcing` / `fund-lp-sourcing` / `advisor-board-sourcing` / `other` |
-| `subject_name`       | Text          | Project subject — PortCo name, investment thesis, fundraising theme, etc.                          |
-| `subject_slug`       | Text          | Hyphenated lowercase.                                                                              |
-| `search_title`       | Text          | As written by the user (role title, persona, archetype, etc.).                                     |
-| `search_slug`        | Text          | Hyphenated. May include Airtable record ID suffix on collision.                                    |
-| `owner_email`        | Email         | Cowork user email.                                                                                 |
-| `status`             | Single select | `active` / `paused` / `closed`                                                                     |
-| `slack_channel_id`   | Text          | Populated after Slack channel creation.                                                            |
-| `slack_channel_name` | Text          | Populated after Slack channel creation.                                                            |
-| `search_md_path`     | Text          | Relative path inside Cowork Project, e.g. `roles/foo-bar/SEARCH.md`.                               |
-| `schedule`           | Long text     | JSON-stringified schedule object.                                                                  |
-| `sourcing_task_id`   | Text          | Cowork scheduled task ID.                                                                          |
-| `weekly_task_id`     | Text          | Cowork scheduled task ID.                                                                          |
-| `last_run_at`        | Date/Time     | Updated after each sourcing batch.                                                                 |
-| `created_at`         | Date/Time     | ISO-8601 UTC.                                                                                      |
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| company_name | string | yes | |
+| role_title | string | yes | |
+| slug | string | yes | URL-safe unique slug. Returns 409 on conflict. |
+| use_case | string | no | recruiting (default), gtm, investment, fund_lp, advisor, other |
+| slack_channel_id | string | no | Set after channel creation via `update_sourcing_project` |
+| slack_channel_name | string | no | |
+| search_criteria | string | no | SEARCH.md content |
 
-### Candidates
-One record per LinkedIn profile ever sourced for this user.
+Returns the full project row including `id`. **Store this `id` in the role's `config.json` as `sourcing_project_id`**.
 
-| Field               | Type       | Notes                                                               |
-| ------------------- | ---------- | ------------------------------------------------------------------- |
-| `candidate_id`      | Auto       | Airtable record ID.                                                 |
-| `linkedin_url`      | URL        | Normalized — strip trailing slash, lowercase.                       |
-| `name`              | Text       |                                                                     |
-| `headline`          | Text       | LinkedIn headline at time of first sourcing.                        |
-| `current_title`     | Text       |                                                                     |
-| `current_company`   | Text       |                                                                     |
-| `location`          | Text       |                                                                     |
-| `first_sourced_at`  | Date/Time  |                                                                     |
-| `burned`            | Checkbox   | True = never serve again to this user on any role.                  |
-| `burned_reason`     | Text       | Populated when burned flips to true.                                |
+### `get_sourcing_status`
 
-### Served Leads
-Junction table — which candidates went to which searches for this user.
+Reads project state, deliveries, and feedback.
 
-| Field             | Type      | Notes                                                             |
-| ----------------- | --------- | ----------------------------------------------------------------- |
-| `served_id`       | Auto      |                                                                   |
-| `candidate_id`    | Link      | → Candidates                                                      |
-| `search_id`       | Link      | → Searches                                                        |
-| `served_at`       | Date/Time |                                                                   |
-| `was_repeat`      | Checkbox  | True if this was a cross-search repeat.                           |
-| `slack_message_ts`| Text      | Slack message timestamp (for follow-up feedback linking).         |
-| `feedback_status` | Single select | null / `yes` / `maybe` / `no`                                 |
-| `score`           | Number    | 1-10 AI score at time of serving.                                 |
-| `rationale`       | Long text | AI scoring rationale.                                             |
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| project_id | string | yes | UUID from `create_sourcing_project` |
+| scope | string | no | `"project"` (default) or `"global"` |
 
-### Feedback
-Per-event log.
+**scope=project** returns:
+- `project` — id, slug, status, last_run_at
+- `deliveries` — each delivered person with: person_id, linkedin_url, full_name, score, decision (yes/maybe/no/null), feedback_notes, delivered_at
+- `stats` — total, yes, maybe, no, pending counts
 
-| Field            | Type          | Notes                                                              |
-| ---------------- | ------------- | ------------------------------------------------------------------ |
-| `feedback_id`    | Auto          |                                                                    |
-| `served_id`      | Link          | → Served Leads (null if general channel message)                   |
-| `search_id`      | Link          | → Searches                                                         |
-| `type`           | Single select | `button_click` / `channel_message`                                 |
-| `value`          | Long text     | yes/maybe/no or raw message text.                                  |
-| `user_email`     | Email         | Who sent the feedback.                                             |
-| `created_at`     | Date/Time     |                                                                    |
+**scope=global** returns:
+- `global_linkedin_urls` — sorted list of every LinkedIn URL delivered across ALL of this user's projects
+
+Use `scope=project` for feedback processing and `scope=global` for cross-project dedup.
+
+### `update_sourcing_project`
+
+Updates a sourcing project's metadata.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| project_id | string | yes | |
+| search_criteria | string | no | Updated SEARCH.md content |
+| status | string | no | active, paused, closed |
+| last_run_at | string | no | ISO 8601 timestamp |
+| slack_channel_id | string | no | |
+| slack_channel_name | string | no | |
+
+### `record_sourcing_deliveries`
+
+Records a batch of deliveries for a sourcing project. Call this before posting Slack cards so you have `delivery_id`s for the button actions.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| project_id | string | yes | Sourcing project UUID |
+| deliveries | array | yes | Each: `{ person_id, score?, rationale? }` |
+
+Returns the created delivery rows including `id` (the `delivery_id` to embed in Slack button actions).
+
+## What the Slack bot handles (not Claude)
+
+The Lovelace Slack bot handles user interactions on posted cards:
+
+1. **Recording feedback** — when a user clicks Yes/Maybe/Pass, the bot writes the decision to Supabase
+2. **Updating Slack cards** — the bot replaces action buttons with a status line after feedback
 
 ## Scheduled task prompts
 
-Cowork scheduled tasks run a natural language prompt. Keep prompts concise — the skills themselves hold the actual logic. The prompt is identical regardless of use case; the skill reads the use case from the Search record's `use_case` field and adapts.
+Cowork scheduled tasks run a natural language prompt. Keep prompts concise — the skills hold the actual logic. The prompt is identical regardless of use case; the skill reads the use case from config.json and adapts.
 
 ### Sourcing task prompt
-
-When creating the sourcing task, use this prompt (substitute the bracketed values):
 
 ```
 Run the primary-sourcing:run-sourcing-batch skill for search slug [SEARCH_SLUG].
 The search folder lives in this Cowork Project at roles/[SEARCH_SLUG]/.
-Use connected MCPs: Airtable (for dedup state and writes), Slack (for posting cards), Lovelace (for Apify LinkedIn search).
+Use connected MCPs: Slack (for posting cards), Lovelace (for LinkedIn search and sourcing state).
 ```
 
 ### Weekly summary task prompt
 
 ```
 Run the primary-sourcing:run-weekly-summary skill for search slug [SEARCH_SLUG].
-Post the weekly digest to the search's Slack channel using the schedule in Airtable.
+Post the weekly digest to the search's Slack channel.
 ```
 
 ## Cadence options to offer

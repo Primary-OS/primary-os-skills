@@ -40,33 +40,42 @@ claude --plugin-dir /path/to/this/plugin/folder
 | Skill                      | Purpose                                                                                             | Typically invoked by                               |
 | -------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | `start-sourcing-project`   | Scaffold a fresh Cowork Project for ongoing sourcing at one subject. Pick use case, gather context. | User, once per subject (PortCo, thesis, fundraise) |
-| `kickoff-role`             | Kick off a new search inside a scaffolded Project. Creates Slack channel + Airtable record + tasks. | User, per search                                   |
+| `kickoff-role`             | Kick off a new search inside a scaffolded Project. Creates Slack channel + Lovelace project + tasks.| User, per search                                   |
 | `run-sourcing-batch`       | Run one sourcing batch. Dedup-aware. Posts profile cards to Slack.                                  | Cowork scheduled tasks (and manual)                |
 | `run-weekly-summary`       | Post the weekly digest to a search's Slack channel.                                                 | Cowork scheduled tasks (and manual)                |
 
 ## Architecture
 
 - **Cowork Project per subject**: shared across the team. Holds `CLAUDE.md`, `project-context/`, `roles/{search_slug}/`, and `templates/`.
-- **Per-user Airtable base**: each teammate connects their own base with Searches, Candidates, Served Leads, Feedback tables. Dedup history is naturally user-scoped.
-- **Lovelace MCP for Apify**: shared Primary Apify account is wrapped as a Lovelace MCP tool, so teammates don't need their own Apify key.
+- **Lovelace platform for sourcing state**: projects, deliveries, and feedback stored in Supabase. Per-user dedup history is naturally user-scoped. The Slack bot writes deliveries and feedback server-side — Claude reads state via `get_sourcing_status` and never writes tracking data directly.
+- **Lovelace MCP for LinkedIn search**: shared Primary Apify account wrapped as an MCP tool, plus sourcing project CRUD (`create_sourcing_project`, `get_sourcing_status`, `update_sourcing_project`).
 - **Scheduled tasks per search**: one for sourcing cadence, one for the weekly digest. Prompts invoke the skills in this plugin.
-- **Slack bot**: extends the existing Lovelace Slack bot to route channel events (buttons, messages) to the right Search record via Airtable lookup.
+- **Slack bot**: posts profile cards with Yes/Maybe/Pass/Details buttons. Records deliveries and feedback to Supabase. Updates card status after user clicks.
 
 ## Dedup rules (universal across use cases)
 
-1. Never serve the same lead twice on the same search.
-2. At most one cross-search repeat per batch per user.
-3. Cross-search repeats are burned on serve — permanent exclusion for that user.
+1. Never serve the same lead twice on the same project.
+2. At most one cross-project repeat per batch per user.
+3. Cross-project repeats are burned on serve — permanent exclusion for that user.
 4. Scope is per-user — teammates' histories are independent.
 
 Full algorithm: `skills/run-sourcing-batch/references/dedup-algorithm.md`.
 
-## Connector prerequisites
+## Required connectors
 
-See `CONNECTORS.md` for the full list and which use case needs which connector.
+| Connector | Purpose |
+|-----------|---------|
+| **Slack** | Per-search channels, profile cards, feedback buttons, surface commands, weekly digests |
+| **scheduled-tasks** | Recurring sourcing batches + weekly digests |
+| **Lovelace MCP** | LinkedIn search (shared Apify account), sourcing project CRUD, delivery/feedback state |
 
-Required for sourcing to actually run: Slack, Airtable, scheduled-tasks, Lovelace MCP.
 Optional for richer kickoff context: Granola, Notion, Google Drive, Gmail, Affinity.
+
+### Privacy and scope
+
+- **Lovelace**: all sourcing state (projects, deliveries, feedback) stored in Supabase. Each user's projects are scoped to their account. The Slack bot writes via internal API key.
+- **Slack**: the plugin only reads and writes to channels it creates (`sourcing-{search_slug}`), never broader workspace data.
+- **Context gathering connectors** (Granola/Notion/Drive/Gmail/Affinity): reads only. No writes.
 
 ## Bundled templates
 
@@ -76,15 +85,9 @@ When the plugin scaffolds a Project, it drops in these templates:
 - `templates/role/SEARCH-TEMPLATE.md` — starting structure for each search's brain.
 - `templates/role/config-template.json` — per-search config schema.
 
-## Versioning
-
-Semantic versioning. See `CHANGELOG.md` for release notes.
-
 ## Issues and contributions
 
-Issues live in the Linear "Team Recruiting Sourcing Agent" project. Plugin source is in `Primary-OS/primary-os-skills` under `plugins/primary-sourcing/`.
-
-Pull requests welcome — keep the plugin self-contained and version-bumped.
+Issues live in the Linear "Claude Plugin Marketplace" project. Plugin source is in `Primary-OS/primary-os-skills` under `plugins/primary-sourcing/`.
 
 ## License
 
