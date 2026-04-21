@@ -6,7 +6,7 @@ Every sourcing batch posts a header + one profile card per candidate. This refer
 
 ```
 🔍 *Sourcing run — {Month Day, Year}*
-{N} new candidate{s}. Use the buttons to give feedback, or type `surface my maybes` anytime to revisit.
+{N} new candidate{s}. Use the buttons to give feedback.
 ```
 
 Posted as a simple `chat.postMessage` with the text above (no blocks).

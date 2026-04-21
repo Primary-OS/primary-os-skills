@@ -96,7 +96,7 @@ Post a Block Kit message to the search's Slack channel:
 
 ─────
 
-Type `surface my maybes` or `surface nos because [reason]` anytime to revisit candidates.
+Type any guidance into this channel and I'll adjust on the next run.
 ```
 
 Use the analysis text as the body of a `section` block. Separate header, stats, analysis, and footer with `divider` blocks.
