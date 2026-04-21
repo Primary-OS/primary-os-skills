@@ -43,7 +43,7 @@ Parse SEARCH.md into structured search parameters (titles, locations, seniority,
 
 - Shared Primary API key is server-side — no per-user key needed.
 - Run multiple archetype-specific searches in parallel. LinkedIn keyword matching is AND — keep individual queries to 2-3 words max and lean on title+location filters for the rest.
-- Target ~35 profiles per archetype-search so the final pool across archetypes is 70-120 raw profiles.
+- Target max 10 profiles per archetype-search so the final pool across archetypes is ~30 raw profiles.
 
 ### Step 4 — Score and rank
 
