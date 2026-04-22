@@ -20,6 +20,8 @@ Creates a new sourcing search.
 
 Returns the full search row including `id`. **Store this `id` in the role's `config.json` as `sourcing_search_id`**.
 
+In the same database transaction, Lovelace enqueues a `sourcing_channel` job. A background worker picks it up and creates the Slack channel (`sourcing-{slug}`). The agent does not need to wait for or poll for the channel.
+
 ### `get_sourcing_status`
 
 Reads search state, deliveries, and feedback.
@@ -105,6 +107,18 @@ Records a batch of deliveries for a sourcing search. Call this before posting Sl
 
 Returns the created delivery rows including `id` (the `delivery_id` to embed in Slack button actions).
 
+### `post_sourcing_weekly_summary`
+
+Posts a formatted weekly sourcing digest to the search's Slack channel. The Lovelace backend formats the message as Block Kit using the search's stored metadata (subject name, search title, channel) and posts it. Claude does not need the Slack MCP for this.
+
+| Parameter | Type | Required | Notes |
+|-----------|------|----------|-------|
+| search_id | string | yes | Sourcing search UUID |
+| stats | object | yes | `{ total, yes_count, maybe_count, pass_count, pending_count }` |
+| analysis | string | no | AI-generated pattern analysis text (markdown). Omit if fewer than 3 reviewed candidates. |
+
+Returns `{ ok: true, channel_id, ts }` on success.
+
 ## What the Slack bot handles (not Claude)
 
 The Lovelace Slack bot handles user interactions on posted cards:
@@ -128,7 +142,7 @@ Use connected MCPs: Slack (for posting cards), Lovelace (for LinkedIn search and
 
 ```
 Run the primary-sourcing:run-weekly-summary skill for search slug [SEARCH_SLUG].
-Post the weekly digest to the search's Slack channel.
+Post the weekly digest via the Lovelace MCP (post_sourcing_weekly_summary). Do not use the Slack MCP for this.
 ```
 
 ## Cadence options to offer

@@ -13,8 +13,7 @@ Post a concise weekly recap to the search's Slack channel: counts, patterns, and
 
 ## Required MCPs
 
-- Slack
-- Lovelace MCP (for `get_sourcing_status`)
+- Lovelace MCP (for `get_sourcing_status` and `post_sourcing_weekly_summary`)
 
 ## Procedure
 
@@ -80,30 +79,23 @@ fundraising, "advisors" for advisor search.
 Do NOT include action items or suggestions — just the analysis.
 ```
 
-### Step 5 — Format and post the Slack digest
+### Step 5 — Post the digest via Lovelace MCP
 
-Post a Block Kit message to the search's Slack channel:
+Call `post_sourcing_weekly_summary` with the search's data. **Do not use the Slack MCP** — Lovelace handles the Slack formatting and posting server-side.
 
 ```
-📊 Weekly Sourcing Recap — {Month Day, Year}
-
-*{subject_name} — {search_title}*
-
-• *{total} profiles* surfaced this week
-• ✅ {yes_count} Yes  ·  🤔 {maybe_count} Maybe  ·  ❌ {pass_count} Pass  ·  ⏳ {pending_count} Pending
-
-{analysis section from step 4, if present}
-
-─────
-
-Type `surface my maybes` or `surface nos because [reason]` anytime to revisit candidates.
+post_sourcing_weekly_summary(
+  search_id: sourcing_search_id,
+  stats: { total, yes_count, maybe_count, pass_count, pending_count },
+  analysis: "..." // from step 4, or omit if skipped
+)
 ```
 
-Use the analysis text as the body of a `section` block. Separate header, stats, analysis, and footer with `divider` blocks.
+The Lovelace backend formats the message as Block Kit (header, stats, analysis, footer with dividers) and posts it to the search's Slack channel. Returns `{ ok, channel_id, ts }`.
 
-### Step 6 — Log the digest
+### Step 6 — Confirm the post
 
-Log the digest post in the search's Slack channel thread. The Slack bot captures direction-type feedback from channel messages automatically. No separate write to Supabase is needed from Claude.
+Check the response from `post_sourcing_weekly_summary`. If `ok` is true, the digest was posted successfully. If it errors, tell the user the digest couldn't be posted and include the error.
 
 ## Edge cases
 
