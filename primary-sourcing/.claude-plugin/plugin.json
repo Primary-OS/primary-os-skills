@@ -1,6 +1,6 @@
 {
   "name": "primary-sourcing",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Team-wide sourcing agent for Primary Venture Partners. Scaffold a Cowork Project per sourcing target, kick off searches, and run scheduled LinkedIn sourcing with per-user dedup via the Lovelace platform, Slack feedback loops, and weekly digests.",
   "author": {
     "name": "Primary Venture Partners",
