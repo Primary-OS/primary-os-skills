@@ -20,7 +20,7 @@ Everything else in the Project stays untouched.
 
 ## Prerequisites
 
-- **MCPs connected**: Slack, scheduled-tasks, Lovelace MCP (for LinkedIn search + sourcing search CRUD). Abort clearly if any required MCP is missing.
+- **MCPs connected**: Slack, scheduled-tasks, Lovelace MCP (for LinkedIn search, sourcing search CRUD, and weekly digest posting). Abort clearly if any required MCP is missing.
 - **Owner**: the current Cowork user. Lovelace tracks `created_by` automatically from the authenticated session.
 
 All user-facing questions use AskUserQuestion, never plain text. Batch up to 4 per call.
@@ -38,6 +38,7 @@ The Lovelace MCP provides these sourcing tools:
 - `submit_sourcing_direction` — submit free-text direction to steer the search brain
 - `get_sourcing_criteria` / `update_sourcing_criteria` — read/write versioned search criteria
 - `get_sourcing_criteria_versions` / `set_sourcing_criteria_version` — manage criteria versions
+- `post_sourcing_weekly_summary` — post a formatted weekly digest to the search's Slack channel (Claude does not need the Slack MCP for this)
 
 ## Procedure
 
@@ -196,7 +197,7 @@ Via the scheduled-tasks MCP:
 - **Sourcing batch**: runs on the user's chosen cadence from Step 6.
   - Prompt: `run the primary-sourcing:run-sourcing-batch skill for search_slug "{slug}"`
 - **Weekly digest**: Fridays 4pm (or user's choice). Skip if the user opted out.
-  - Prompt: `run the primary-sourcing:run-weekly-summary skill for search_slug "{slug}"`
+  - Prompt: `run the primary-sourcing:run-weekly-summary skill for search_slug "{slug}". Post the weekly digest via the Lovelace MCP (post_sourcing_weekly_summary). Do not use the Slack MCP for this.`
 
 Store both task IDs in `config.json`.
 
