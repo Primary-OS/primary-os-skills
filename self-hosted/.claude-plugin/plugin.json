@@ -1,0 +1,22 @@
+{
+  "name": "self-hosted",
+  "version": "0.1.0",
+  "description": "Skills for managing Primary's self-hosted open-source infrastructure: GitLab, and future services. Server administration, backups, upgrades, user management, and troubleshooting via Hetzner Cloud.",
+  "author": {
+    "name": "Primary Venture Partners",
+    "email": "tech@primary.vc"
+  },
+  "homepage": "https://github.com/Primary-OS/primary-os-skills",
+  "repository": "https://github.com/Primary-OS/primary-os-skills",
+  "license": "UNLICENSED",
+  "skills": "./skills/",
+  "keywords": [
+    "gitlab",
+    "self-hosted",
+    "hetzner",
+    "infrastructure",
+    "devops",
+    "backups",
+    "server-administration"
+  ]
+}
