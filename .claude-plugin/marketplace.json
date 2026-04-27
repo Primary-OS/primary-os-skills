@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Official plugin marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools for the Primary team.",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "plugins": [
     {
       "name": "primary-sourcing",
       "source": "./primary-sourcing",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "description": "Team-wide sourcing agent. Scaffold a portfolio company project, kick off role searches, automate LinkedIn sourcing with per-user dedup, and collect feedback through Slack.",
       "category": "productivity",
       "tags": ["sourcing", "recruiting", "talent", "slack", "lovelace", "linkedin"]
@@ -24,6 +24,22 @@
       "description": "Single affinity-expert skill for Primary's Affinity MCP — load before pipeline, search, notes, or list tools. Workflow chains and error handling beyond raw tool descriptions.",
       "category": "productivity",
       "tags": ["affinity", "crm", "deal-pipeline", "venture-capital", "relationship-intelligence", "mcp"]
+    },
+    {
+      "name": "self-hosted",
+      "source": "./self-hosted",
+      "version": "0.1.0",
+      "description": "Manage Primary's self-hosted open-source infrastructure on Hetzner Cloud. GitLab administration, backups, upgrades, user management, and troubleshooting.",
+      "category": "infrastructure",
+      "tags": ["gitlab", "self-hosted", "hetzner", "devops", "backups", "infrastructure"]
+    },
+    {
+      "name": "gitlab",
+      "source": "./gitlab",
+      "version": "0.1.0",
+      "description": "Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local GitLab tooling.",
+      "category": "devops",
+      "tags": ["gitlab", "cicd", "deploy", "pipeline", "migration", "onboarding", "lovelace"]
     }
   ]
 }
