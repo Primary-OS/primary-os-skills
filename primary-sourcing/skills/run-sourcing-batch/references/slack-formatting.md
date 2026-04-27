@@ -27,7 +27,7 @@ Staff ML Engineer  ·  DeepMind  ·  San Francisco Bay Area
 
 Claude creates delivery rows via the `record_sourcing_deliveries` MCP tool **before** posting cards. This returns `delivery_id`s which are embedded in the button actions. Cards are posted with buttons already attached — no second pass needed.
 
-1. Call `record_sourcing_deliveries` with the batch (person_id, score, rationale per candidate). Returns delivery rows with `id` fields.
+1. Call `record_sourcing_deliveries` with the batch (linkedin_url, full_name, headline, score, rationale per candidate). Returns delivery rows with `id` fields.
 2. Post each card to Slack using the Block Kit below, with `delivery_id` wired into the action buttons.
 3. The Slack bot handles button clicks and feedback recording from there.
 
