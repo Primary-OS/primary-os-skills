@@ -58,9 +58,22 @@ curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" \
 
 ## Managing CI/CD variables
 
-### List all variables
+Variables live at two levels:
+- **Group-level** (Primary-OS, group ID 6): shared deploy tokens (Railway, Vercel, Cloudflare) — inherited by all projects in the group
+- **Project-level**: project-specific config (Supabase, Slack, SMTP, etc.)
+
+### List variables
 
 ```bash
+# Group-level (shared deploy tokens)
+curl -s --header "PRIVATE-TOKEN: $TOKEN" \
+  "$GITLAB_URL/api/v4/groups/6/variables" | python3 -c "
+import json, sys
+for v in json.loads(sys.stdin.read()):
+    print(f'{v[\"key\"]:<35} masked={v[\"masked\"]} protected={v[\"protected\"]}')
+"
+
+# Project-level (Lovelace-specific)
 curl -s --header "PRIVATE-TOKEN: $TOKEN" \
   "$GITLAB_URL/api/v4/projects/1/variables" | python3 -c "
 import json, sys
@@ -72,27 +85,47 @@ for v in json.loads(sys.stdin.read()):
 ### Add a variable
 
 ```bash
+# To a project
 curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" \
   --form "key=VAR_NAME" \
   --form "value=VAR_VALUE" \
   --form "masked=true" \
   --form "protected=false" \
-  "$GITLAB_URL/api/v4/projects/1/variables"
+  "$GITLAB_URL/api/v4/projects/<PROJECT_ID>/variables"
+
+# To the group (shared across all projects)
+curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" \
+  --form "key=VAR_NAME" \
+  --form "value=VAR_VALUE" \
+  --form "masked=true" \
+  --form "protected=false" \
+  "$GITLAB_URL/api/v4/groups/6/variables"
 ```
 
 ### Update a variable
 
 ```bash
+# Project-level
 curl -s --request PUT --header "PRIVATE-TOKEN: $TOKEN" \
   --form "value=NEW_VALUE" \
-  "$GITLAB_URL/api/v4/projects/1/variables/VAR_NAME"
+  "$GITLAB_URL/api/v4/projects/<PROJECT_ID>/variables/VAR_NAME"
+
+# Group-level
+curl -s --request PUT --header "PRIVATE-TOKEN: $TOKEN" \
+  --form "value=NEW_VALUE" \
+  "$GITLAB_URL/api/v4/groups/6/variables/VAR_NAME"
 ```
 
 ### Delete a variable
 
 ```bash
+# Project-level
 curl -s --request DELETE --header "PRIVATE-TOKEN: $TOKEN" \
-  "$GITLAB_URL/api/v4/projects/1/variables/VAR_NAME"
+  "$GITLAB_URL/api/v4/projects/<PROJECT_ID>/variables/VAR_NAME"
+
+# Group-level
+curl -s --request DELETE --header "PRIVATE-TOKEN: $TOKEN" \
+  "$GITLAB_URL/api/v4/groups/6/variables/VAR_NAME"
 ```
 
 ### Variable rules
@@ -100,6 +133,7 @@ curl -s --request DELETE --header "PRIVATE-TOKEN: $TOKEN" \
 - **Masked variables** cannot contain spaces, newlines, or be less than 8 characters
 - **Protected variables** are only available to jobs running on protected branches (main is protected)
 - If a variable is both masked and protected, it's only in production-path jobs on main
+- **Project-level overrides group-level** — if the same key exists at both levels, the project value wins
 
 ## Pipeline schedules
 

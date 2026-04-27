@@ -16,7 +16,7 @@
 
 - **Uses debian:bookworm-slim**, not alpine — Railway CLI needs glibc
 - **Tokens are environment-scoped** — staging and production need separate tokens (RAILWAY_TOKEN and RAILWAY_TOKEN_PRODUCTION)
-- **Production jobs use `export RAILWAY_TOKEN="$RAILWAY_TOKEN_PRODUCTION"`** in the script, not the YAML `variables:` block — GitLab project-level CI variables override YAML job-level variables
+- **Production jobs use `export RAILWAY_TOKEN="$RAILWAY_TOKEN_PRODUCTION"`** in the script, not the YAML `variables:` block — GitLab group/project-level CI variables override YAML job-level variables
 - Service names: `lovelace-api` (API), `ada-slack-bot` (Slackbot)
 
 ### Vercel
@@ -46,9 +46,17 @@
 Variables override in this order (highest wins):
 1. Trigger/manual/scheduled pipeline variables
 2. **Project-level CI variables** (Settings → CI/CD → Variables)
-3. Group-level variables
+3. **Group-level CI variables** (Group → Settings → CI/CD → Variables)
 4. Instance-level variables
 5. Inherited env vars
-6. **YAML job-level `variables:`** ← this is LOWER priority than project-level
+6. **YAML job-level `variables:`** ← this is LOWER priority than group or project
 
-This means you cannot override a project-level variable with a job's `variables:` block. Use `export` in the script instead.
+This means you cannot override a group-level or project-level variable with a job's `variables:` block. Use `export` in the script instead.
+
+### Variable locations
+
+Shared deploy platform tokens are at the **group level** (Primary-OS):
+- `RAILWAY_TOKEN`, `RAILWAY_TOKEN_PRODUCTION`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `CLOUDFLARE_API_TOKEN`
+
+Project-specific variables stay at the **project level** (e.g., Lovelace):
+- `SUPABASE_ACCESS_TOKEN`, `VERCEL_PROJECT_ID`, `SLACK_BOT_TOKEN`, etc.
