@@ -24,6 +24,22 @@
       "description": "Single affinity-expert skill for Primary's Affinity MCP — load before pipeline, search, notes, or list tools. Workflow chains and error handling beyond raw tool descriptions.",
       "category": "productivity",
       "tags": ["affinity", "crm", "deal-pipeline", "venture-capital", "relationship-intelligence", "mcp"]
+    },
+    {
+      "name": "self-hosted",
+      "source": "./self-hosted",
+      "version": "0.1.0",
+      "description": "Manage Primary's self-hosted open-source infrastructure on Hetzner Cloud. GitLab administration, backups, upgrades, user management, and troubleshooting.",
+      "category": "infrastructure",
+      "tags": ["gitlab", "self-hosted", "hetzner", "devops", "backups", "infrastructure"]
+    },
+    {
+      "name": "gitlab-cicd",
+      "source": "./gitlab-cicd",
+      "version": "0.1.0",
+      "description": "Interact with Lovelace CI/CD pipelines on GitLab. Check pipeline status, view job logs, trigger deploys, retry failed jobs, manage CI variables, and configure pipeline schedules.",
+      "category": "devops",
+      "tags": ["gitlab", "cicd", "deploy", "pipeline", "lovelace", "devops"]
     }
   ]
 }
