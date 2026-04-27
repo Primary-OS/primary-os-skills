@@ -17,7 +17,7 @@
 
 ## Overview
 
-This repo is the skills marketplace for [Primary Venture Partners](https://primary.vc). It contains a catalog of plugins (`.claude-plugin/marketplace.json`) and each plugin's source under `plugins/`.
+This repo is the skills marketplace for [Primary Venture Partners](https://primary.vc). It contains a catalog of plugins (`.claude-plugin/marketplace.json`) and each plugin's source at the repo root.
 
 Add the marketplace once and new plugins become available automatically as they ship.
 
@@ -25,7 +25,10 @@ Add the marketplace once and new plugins become available automatically as they 
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **primary-sourcing** | `0.1.0-alpha` | Team-wide sourcing agent. Scaffold a project per portfolio company or sourcing target, kick off searches, run automated LinkedIn sourcing with Slack feedback loops and weekly digests. Supports recruiting, GTM, investment, fund/LP, advisor, and custom use cases. |
+| **primary-sourcing** | `0.3.0` | Team-wide sourcing agent. Scaffold a project per portfolio company, kick off searches, run automated LinkedIn sourcing with Slack feedback loops and weekly digests. |
+| **affinity-crm** | `0.1.1` | Affinity CRM expert. Pipeline management, search, notes, and list tools for Primary's Affinity MCP. |
+| **gitlab** | `0.1.0` | Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local tooling. |
+| **self-hosted** | `0.1.0` | Admin-only. Manage Primary's self-hosted GitLab on Hetzner Cloud — server administration, backups, upgrades, user management, and troubleshooting. |
 
 ## Installation
 
@@ -69,21 +72,34 @@ Open the Claude Code panel and run the same slash commands as the CLI:
 The `.claude-plugin/` format is specific to Claude Code and Cowork. However, all skill content in this repo is model-agnostic — the procedures, scoring rubrics, and reference docs work with any LLM-based agent.
 
 1. Clone this repo.
-2. Point your agent at the relevant skill files under `plugins/<plugin>/skills/<skill-name>/`.
+2. Point your agent at the relevant skill files under `<plugin>/skills/<skill-name>/`.
 3. Each skill contains a `SKILL.md` (the full procedure) and a `references/` directory with supporting docs.
-4. The skills reference MCP connectors (Airtable, Slack, etc.) — map these to whatever tool-use mechanism your agent supports.
+4. The skills reference MCP connectors and APIs — map these to whatever tool-use mechanism your agent supports.
 
-**Key paths for direct integration:**
+## Plugin structure
 
 ```
 primary-sourcing/
   skills/
-    start-sourcing-project/SKILL.md    # Scaffold a new project
-    kickoff-role/SKILL.md              # Kick off a search
-    run-sourcing-batch/SKILL.md        # Run a sourcing batch
-    run-weekly-summary/SKILL.md        # Post a weekly digest
-  templates/                           # Project and search templates
-  CONNECTORS.md                        # Required and optional integrations
+    kickoff-search/SKILL.md         # Kick off a new search
+    run-sourcing-batch/SKILL.md     # Run a sourcing batch
+    run-weekly-summary/SKILL.md     # Post a weekly digest
+  templates/                        # Project and search templates
+
+affinity-crm/
+  skills/
+    affinity-expert/SKILL.md        # Affinity CRM operations
+
+gitlab/
+  skills/
+    pipeline/SKILL.md               # Check pipeline status, view logs, retry jobs
+    deploy/SKILL.md                 # Trigger deploys, manage CI variables
+    migrate-repo/SKILL.md           # Migrate repos from GitHub to GitLab
+    setup-local/SKILL.md            # Set up local GitLab tooling
+
+self-hosted/
+  skills/
+    gitlab/SKILL.md                 # GitLab server administration
 ```
 
 ## Managed distribution

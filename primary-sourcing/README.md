@@ -39,8 +39,7 @@ claude --plugin-dir /path/to/this/plugin/folder
 
 | Skill                      | Purpose                                                                                             | Typically invoked by                               |
 | -------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `start-sourcing-project`   | Scaffold a fresh Cowork Project for ongoing sourcing at one subject. Pick use case, gather context. | User, once per subject (PortCo, thesis, fundraise) |
-| `kickoff-role`             | Kick off a new search inside a scaffolded Project. Creates Lovelace search + Slack channel + tasks.| User, per search                                   |
+| `kickoff-search`           | Kick off a new search. Gathers context, creates Lovelace search + Slack channel + scheduled tasks. | User, per search                                   |
 | `run-sourcing-batch`       | Run one sourcing batch. Dedup-aware. Posts profile cards to Slack.                                  | Cowork scheduled tasks (and manual)                |
 | `run-weekly-summary`       | Post the weekly digest to a search's Slack channel.                                                 | Cowork scheduled tasks (and manual)                |
 
@@ -74,7 +73,7 @@ Optional for richer kickoff context: Granola, Notion, Google Drive, Gmail, Affin
 ### Privacy and scope
 
 - **Lovelace**: all sourcing state (projects, deliveries, feedback) stored in Supabase. Each user's projects are scoped to their account. The Slack bot writes via internal API key.
-- **Slack**: the plugin only reads and writes to channels it creates (`sourcing-{search_slug}`), never broader workspace data.
+- **Slack**: the plugin only reads and writes to channels created by the background worker (`sourcing-{search_slug}`), never broader workspace data.
 - **Context gathering connectors** (Granola/Notion/Drive/Gmail/Affinity): reads only. No writes.
 
 ## Bundled templates
@@ -87,7 +86,7 @@ When the plugin scaffolds a Project, it drops in these templates:
 
 ## Issues and contributions
 
-Issues live in the Linear "Claude Plugin Marketplace" project. Plugin source is in `Primary-OS/primary-os-skills` under `plugins/primary-sourcing/`.
+Issues live in the Linear "Claude Plugin Marketplace" project. Plugin source is in `Primary-OS/primary-os-skills` under `primary-sourcing/`.
 
 ## License
 
