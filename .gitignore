@@ -6,3 +6,6 @@ node_modules/
 *.swp
 .vscode/
 .idea/
+*.zip
+*.png
+.claude/*.local.md

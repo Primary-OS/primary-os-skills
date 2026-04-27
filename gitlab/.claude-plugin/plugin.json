@@ -1,0 +1,22 @@
+{
+  "name": "gitlab",
+  "version": "0.1.0",
+  "description": "Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local GitLab tooling.",
+  "author": {
+    "name": "Primary Venture Partners",
+    "email": "tech@primary.vc"
+  },
+  "homepage": "https://github.com/Primary-OS/primary-os-skills",
+  "repository": "https://github.com/Primary-OS/primary-os-skills",
+  "license": "UNLICENSED",
+  "skills": "./skills/",
+  "keywords": [
+    "gitlab",
+    "cicd",
+    "deploy",
+    "pipeline",
+    "migration",
+    "onboarding",
+    "lovelace"
+  ]
+}

@@ -105,14 +105,14 @@ On their machine, they should be able to run:
 
 …should show `primary-sourcing@primary-os` as installed and enabled.
 
-They should also be able to say in any Cowork conversation "set up a new sourcing project" and have the `primary-sourcing:start-sourcing-project` skill trigger.
+They should also be able to say in any Cowork conversation "kick off a new search" and have the `primary-sourcing:kickoff-search` skill trigger.
 
 ## Updates
 
 Once managed settings is rolled out, **no further IT action is required for plugin updates**. We push new versions by:
 
 1. Updating the plugin in `Primary-OS/primary-os-skills`.
-2. Bumping the version in `plugins/primary-sourcing/.claude-plugin/plugin.json`.
+2. Bumping the version in `primary-sourcing/.claude-plugin/plugin.json`.
 3. Merging to `main`.
 
 Teammates pick up the new version on next Cowork startup (or sooner if they run `/plugin marketplace update primary-os`).
