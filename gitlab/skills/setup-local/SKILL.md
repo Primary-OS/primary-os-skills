@@ -1,5 +1,5 @@
 ---
-name: gitlab-setup
+name: setup-local
 description: >
   Set up a teammate's local machine to work with Primary's self-hosted GitLab
   instance at git.primary-os.com. Use when a new team member needs to get
@@ -12,10 +12,6 @@ description: >
 # GitLab Local Setup
 
 Set up a teammate's machine to work with Primary's self-hosted GitLab EE instance at `git.primary-os.com`. This covers installing the CLI, authenticating, adding SSH keys, and configuring git.
-
-## Required context
-
-- **Instance details**: `${CLAUDE_PLUGIN_ROOT}/skills/gitlab/references/instance.md` — server domain, SSH info
 
 ## Prerequisites
 

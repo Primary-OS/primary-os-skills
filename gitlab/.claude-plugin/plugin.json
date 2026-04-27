@@ -1,7 +1,7 @@
 {
-  "name": "github-to-gitlab",
+  "name": "gitlab",
   "version": "0.1.0",
-  "description": "Migrate repositories from GitHub to Primary's self-hosted GitLab instance. Guides teammates through cloning, pushing, and verifying repo migrations with full history preserved.",
+  "description": "Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local GitLab tooling.",
   "author": {
     "name": "Primary Venture Partners",
     "email": "tech@primary.vc"
@@ -11,11 +11,12 @@
   "license": "UNLICENSED",
   "skills": "./skills/",
   "keywords": [
-    "github",
     "gitlab",
+    "cicd",
+    "deploy",
+    "pipeline",
     "migration",
-    "repository",
-    "git",
-    "onboarding"
+    "onboarding",
+    "lovelace"
   ]
 }
