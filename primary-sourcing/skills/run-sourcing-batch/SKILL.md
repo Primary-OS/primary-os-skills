@@ -64,7 +64,7 @@ This is the heart of the team-version logic. See `references/dedup-algorithm.md`
 
 ### Step 6 — Record deliveries and post profile cards to Slack
 
-1. Call `record_sourcing_deliveries` via the Lovelace MCP with the final batch (person_id, score, rationale per candidate). This creates `sourcing_deliveries` rows in Supabase and returns the rows including `delivery_id`s.
+1. Call `record_sourcing_deliveries` via the Lovelace MCP with the final batch (linkedin_url, full_name, headline, score, rationale per candidate). **Always include `full_name` and `headline`** — these are displayed on the Slack card and stored on the person record. This creates `sourcing_deliveries` rows in Supabase and returns the rows including `delivery_id`s.
 2. Post a batch header to the role's Slack channel, then one profile card per candidate with Yes/Maybe/Pass/Details buttons already attached. Format per `references/slack-formatting.md`. Each button's `value` encodes the `delivery_id`.
 
 ### Step 7 — Update search state
