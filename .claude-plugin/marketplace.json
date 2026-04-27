@@ -12,7 +12,7 @@
     {
       "name": "primary-sourcing",
       "source": "./primary-sourcing",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "description": "Team-wide sourcing agent. Scaffold a portfolio company project, kick off role searches, automate LinkedIn sourcing with per-user dedup, and collect feedback through Slack.",
       "category": "productivity",
       "tags": ["sourcing", "recruiting", "talent", "slack", "lovelace", "linkedin"]
