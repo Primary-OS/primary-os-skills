@@ -1,5 +1,5 @@
 ---
-name: github-to-gitlab
+name: migrate-repo
 description: >
   Migrate a repository from GitHub to the self-hosted GitLab instance at
   git.primary-os.com. Use when a teammate asks to "move a repo to GitLab",
@@ -11,10 +11,6 @@ description: >
 # GitHub to GitLab Repository Migration
 
 Migrate a repository from GitHub to Primary's self-hosted GitLab EE instance at `git.primary-os.com`, preserving all branches, tags, and commit history.
-
-## Required context
-
-- **Instance details**: `${CLAUDE_PLUGIN_ROOT}/skills/gitlab/references/instance.md`
 
 ## Prerequisites
 

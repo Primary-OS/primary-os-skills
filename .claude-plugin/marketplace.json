@@ -40,6 +40,14 @@
       "description": "Interact with Lovelace CI/CD pipelines on GitLab. Check pipeline status, view job logs, trigger deploys, retry failed jobs, manage CI variables, and configure pipeline schedules.",
       "category": "devops",
       "tags": ["gitlab", "cicd", "deploy", "pipeline", "lovelace", "devops"]
+    },
+    {
+      "name": "github-to-gitlab",
+      "source": "./github-to-gitlab",
+      "version": "0.1.0",
+      "description": "Migrate repositories from GitHub to Primary's self-hosted GitLab instance. Guides teammates through cloning, pushing, and verifying repo migrations with full history preserved.",
+      "category": "devops",
+      "tags": ["github", "gitlab", "migration", "repository", "git", "onboarding"]
     }
   ]
 }

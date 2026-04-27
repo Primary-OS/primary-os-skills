@@ -1,0 +1,21 @@
+{
+  "name": "github-to-gitlab",
+  "version": "0.1.0",
+  "description": "Migrate repositories from GitHub to Primary's self-hosted GitLab instance. Guides teammates through cloning, pushing, and verifying repo migrations with full history preserved.",
+  "author": {
+    "name": "Primary Venture Partners",
+    "email": "tech@primary.vc"
+  },
+  "homepage": "https://github.com/Primary-OS/primary-os-skills",
+  "repository": "https://github.com/Primary-OS/primary-os-skills",
+  "license": "UNLICENSED",
+  "skills": "./skills/",
+  "keywords": [
+    "github",
+    "gitlab",
+    "migration",
+    "repository",
+    "git",
+    "onboarding"
+  ]
+}
