@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Official plugin marketplace for Primary Venture Partners. Internal workflows, automation, and AI-assisted tools for the Primary team.",
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "plugins": [
     {
@@ -28,10 +28,10 @@
     {
       "name": "self-hosted",
       "source": "./self-hosted",
-      "version": "0.1.0",
-      "description": "Manage Primary's self-hosted open-source infrastructure on Hetzner Cloud. GitLab administration, backups, upgrades, user management, and troubleshooting.",
+      "version": "0.2.0",
+      "description": "Manage Primary's self-hosted open-source infrastructure on Hetzner Cloud. GitLab and GrowthBook administration, backups, upgrades, user management, feature flags, and troubleshooting.",
       "category": "infrastructure",
-      "tags": ["gitlab", "self-hosted", "hetzner", "devops", "backups", "infrastructure"]
+      "tags": ["gitlab", "growthbook", "feature-flags", "self-hosted", "hetzner", "devops", "backups", "infrastructure"]
     },
     {
       "name": "gitlab",
