@@ -88,6 +88,28 @@ Cron config: `/etc/cron.d/gitlab-backup`
 | Scope | Group-level (Primary-OS group) |
 | Config | `/etc/gitlab-runner/config.toml` |
 
+## AI / Duo
+
+| Setting | Value |
+|---|---|
+| `duo_features_enabled` | `true` |
+| `duo_availability` | `default_on` |
+| Feature flags enabled | `ai_duo_chat_switch`, `ai_global_switch`, `global_ai_catalog`, `ai_catalog_project_level_enablement`, `duo_chat` |
+| License / activation | None — foundational agents require activation from customers.gitlab.com |
+| AI Gateway | Not configured (requires activation) |
+
+## CI/CD Group Variables (Primary-OS, group 6)
+
+| Variable | Purpose | Masked |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API | Yes |
+| `RAILWAY_TOKEN` | Railway staging deploys | Yes |
+| `RAILWAY_TOKEN_PRODUCTION` | Railway production deploys | Yes |
+| `VERCEL_ORG_ID` | Vercel org | No |
+| `VERCEL_TOKEN` | Vercel deploys | Yes |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Claude Code subscription auth for CI review jobs | Yes |
+| `GITLAB_REVIEW_TOKEN` | GitLab API — post MR review comments | Yes |
+
 ## Security Settings
 
 - Public sign-up: **disabled** (invite-only)
