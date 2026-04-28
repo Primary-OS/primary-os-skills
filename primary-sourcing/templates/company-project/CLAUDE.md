@@ -36,10 +36,9 @@ The agent will invoke the `primary-sourcing:kickoff-role` skill and walk through
 1. Gathering context from connected tools (Granola, Slack, Notion, Drive, Gmail, Affinity).
 2. Asking targeted follow-up questions with AskUserQuestion.
 3. Generating the SEARCH.md brain.
-4. Creating a private Slack channel (`sourcing-{slug}`).
-5. Creating a Lovelace sourcing project.
-6. Writing the `roles/{slug}/` folder.
-7. Creating recurring Cowork scheduled tasks for sourcing batches and weekly digests.
+4. Creating a Lovelace sourcing search (a background worker creates the Slack channel `sourcing-{slug}` asynchronously).
+5. Writing the `roles/{slug}/` folder.
+6. Creating recurring Cowork scheduled tasks for sourcing batches and weekly digests.
 
 ### Edit an existing search's brain
 
