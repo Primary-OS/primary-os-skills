@@ -28,7 +28,7 @@ Add the marketplace once and new plugins become available automatically as they 
 | **primary-sourcing** | `0.3.0` | Team-wide sourcing agent. Scaffold a project per portfolio company, kick off searches, run automated LinkedIn sourcing with Slack feedback loops and weekly digests. |
 | **affinity-crm** | `0.1.1` | Affinity CRM expert. Pipeline management, search, notes, and list tools for Primary's Affinity MCP. |
 | **gitlab** | `0.1.0` | Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local tooling. |
-| **self-hosted** | `0.1.0` | Admin-only. Manage Primary's self-hosted GitLab on Hetzner Cloud — server administration, backups, upgrades, user management, and troubleshooting. |
+| **self-hosted** | `0.2.0` | Admin-only. Manage Primary's self-hosted GitLab and GrowthBook on Hetzner Cloud — server administration, backups, upgrades, feature flags, and troubleshooting. |
 
 ## Installation
 
@@ -100,6 +100,7 @@ gitlab/
 self-hosted/
   skills/
     gitlab/SKILL.md                 # GitLab server administration
+    growthbook/SKILL.md             # GrowthBook instance management
 ```
 
 ## Managed distribution
