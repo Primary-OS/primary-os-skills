@@ -56,49 +56,66 @@ pages_external_url 'https://pages.primary-os.com'
 
 ## User Management
 
-### Via Rails console
+### Via API (preferred)
+
+The admin API token is in the instance reference. Use it for user CRUD and group membership.
+
 ```bash
-gitlab-rails console
+TOKEN="<admin-token-from-instance-reference>"
+BASE="https://git.primary-os.com/api/v4"
+
+# List all users
+curl -s --header "PRIVATE-TOKEN: $TOKEN" "$BASE/users" | python3 -m json.tool
+
+# Create user
+curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" \
+  --data-urlencode "email=jdoe@primary.vc" \
+  --data-urlencode "username=jdoe" \
+  --data-urlencode "name=Jane Doe" \
+  --data "password=TempPass-2026!&skip_confirmation=true" \
+  "$BASE/users"
+
+# Block/unblock user
+curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" "$BASE/users/<USER_ID>/block"
+curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" "$BASE/users/<USER_ID>/unblock"
+
+# List group members
+curl -s --header "PRIVATE-TOKEN: $TOKEN" "$BASE/groups/6/members"
+
+# Add user to Primary-OS group (access_level: Guest=10, Reporter=20, Developer=30, Maintainer=40, Owner=50)
+curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" \
+  --data "user_id=<USER_ID>&access_level=40" \
+  "$BASE/groups/6/members"
+
+# Change member access level
+curl -s --request PUT --header "PRIVATE-TOKEN: $TOKEN" \
+  --data "access_level=40" \
+  "$BASE/groups/6/members/<USER_ID>"
+
+# Remove member from group
+curl -s --request DELETE --header "PRIVATE-TOKEN: $TOKEN" "$BASE/groups/6/members/<USER_ID>"
+```
+
+### Via Rails console (SSH required — use for operations the API doesn't support)
+
+```bash
+ssh root@87.99.146.126 "gitlab-rails runner '<ruby code>'"
 ```
 
 ```ruby
-# Create user
-user = User.new(username: 'jdoe', email: 'jdoe@primary.vc', name: 'Jane Doe', password: 'temppass123', password_confirmation: 'temppass123')
-user.skip_confirmation!
-user.save!
+# Send password reset email (no API equivalent)
+User.find(<USER_ID>).send_reset_password_instructions
 
-# Make admin
+# Make admin (API can also do this, but Rails is simpler)
 user = User.find_by(username: 'jdoe')
 user.admin = true
 user.save!
 
-# List all users
-User.all.each { |u| puts "#{u.username} - #{u.email} - admin:#{u.admin}" }
-
-# Block/unblock user
-User.find_by(username: 'jdoe').block!
-User.find_by(username: 'jdoe').activate!
-
-# Reset password
-user = User.find_by(username: 'root')
-user.password = 'new_password_here'
-user.password_confirmation = 'new_password_here'
-user.save!
+# List all users with details
+User.all.each { |u| puts "#{u.id} - #{u.username} - #{u.email} - admin:#{u.admin} - #{u.state}" }
 ```
 
-### Via API
-```bash
-# Create personal access token for API access first (Admin > Settings or Rails console)
-# Then use the API:
-
-# List users
-curl --header "PRIVATE-TOKEN: <token>" "https://git.primary-os.com/api/v4/users"
-
-# Create user
-curl --request POST --header "PRIVATE-TOKEN: <token>" \
-  --data "email=new@primary.vc&username=newuser&name=New+User&password=temppass123&skip_confirmation=true" \
-  "https://git.primary-os.com/api/v4/users"
-```
+**GitLab 18.x note**: `User.new(...).save!` no longer works — it fails with "Namespace can't be blank". Use the API for user creation instead.
 
 ## Updating GitLab
 

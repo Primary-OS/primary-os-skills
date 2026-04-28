@@ -62,11 +62,15 @@ Report: all services up/down, memory usage, disk usage, HTTPS status.
 
 Load operations reference: `${CLAUDE_PLUGIN_ROOT}/skills/gitlab/references/operations.md`
 
-**Preferred method**: Use the GitLab Rails console via SSH for user operations. The API requires a personal access token which may not be configured.
+**Preferred method**: Use the GitLab REST API — it doesn't require SSH access and handles user creation, listing, blocking, and group membership. The admin API token is in the instance reference.
 
-**Adding users**: Always use `skip_confirmation!` so users don't need email verification. Set a temporary password and tell the user to share it securely with the new team member.
+**Fallback to SSH/Rails console** for operations the API doesn't support: sending password reset emails, promoting to admin, and direct database queries.
 
-**Listing users**: Show username, email, admin status, and state (active/blocked).
+**Adding users**: Use `POST /api/v4/users` with `skip_confirmation=true`. After creating the user, trigger a password reset email so they can set their own password (requires Rails console: `User.find(id).send_reset_password_instructions`).
+
+**Group membership**: Use `POST /api/v4/groups/:id/members` with `user_id` and `access_level` (Guest=10, Reporter=20, Developer=30, Maintainer=40, Owner=50). Primary-OS group ID is 6.
+
+**Listing users/members**: Use `GET /api/v4/users` or `GET /api/v4/groups/:id/members`.
 
 **Never**: Delete users without explicit confirmation. Prefer blocking over deletion to preserve contribution history.
 

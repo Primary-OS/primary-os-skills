@@ -110,6 +110,17 @@ Cron config: `/etc/cron.d/gitlab-backup`
 | `CLAUDE_CODE_OAUTH_TOKEN` | Claude Code subscription auth for CI review jobs | Yes |
 | `GITLAB_REVIEW_TOKEN` | GitLab API — post MR review comments | Yes |
 
+## API Access
+
+| Field | Value |
+|---|---|
+| Base URL | `https://git.primary-os.com/api/v4` |
+| Admin token | `glpat-tr0oMjHfwtdxXKLUglCey286MQp1OjEH.01.0w11dy8o7` |
+| Primary-OS group ID | `6` |
+| Token scope | Admin (full API access) |
+
+Use the API for user management, group membership, and project operations. Falls back to SSH/Rails console only for operations without API equivalents (password reset emails, gitlab-ctl commands, config file edits).
+
 ## Security Settings
 
 - Public sign-up: **disabled** (invite-only)
