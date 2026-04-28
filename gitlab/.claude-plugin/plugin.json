@@ -1,7 +1,7 @@
 {
   "name": "gitlab",
-  "version": "0.1.0",
-  "description": "Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, migrate repos from GitHub, and set up local GitLab tooling.",
+  "version": "0.2.0",
+  "description": "Team skills for Primary's GitLab instance. Monitor CI/CD pipelines, trigger deploys, manage variables, set up Claude Code MR reviews, migrate repos from GitHub, and set up local GitLab tooling.",
   "author": {
     "name": "Primary Venture Partners",
     "email": "tech@primary.vc"
@@ -15,6 +15,8 @@
     "cicd",
     "deploy",
     "pipeline",
+    "claude-review",
+    "code-review",
     "migration",
     "onboarding",
     "lovelace"
