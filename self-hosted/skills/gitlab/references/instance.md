@@ -115,7 +115,7 @@ Cron config: `/etc/cron.d/gitlab-backup`
 | Field | Value |
 |---|---|
 | Base URL | `https://git.primary-os.com/api/v4` |
-| Admin token | `REDACTED_TOKEN` |
+| Admin token | Stored in 1Password: "GitLab Admin API Token" in Primary OS vault |
 | Primary-OS group ID | `6` |
 | Token scope | Admin (full API access) |
 
